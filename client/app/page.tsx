@@ -216,7 +216,6 @@ export default function Home() {
             <div><label className="block text-sm font-bold text-gray-900 mb-1">Password</label><input type="password" required className="w-full border-2 border-gray-300 p-3 rounded text-black font-medium outline-none focus:border-blue-600" value={loginForm.password} onChange={(e) => setLoginForm({...loginForm, password: e.target.value})} /></div>
             <button type="submit" style={{ backgroundColor: branding.primary_color }} className="w-full text-white font-bold py-4 rounded hover:opacity-90 transition shadow-md text-lg">Sign In</button>
           </form>
-          <div className="mt-8 text-center text-sm text-gray-500"><p className="font-semibold mb-2">Demo Accounts:</p><div className="bg-gray-100 p-3 rounded text-left inline-block"><p>👤 <span className="font-mono text-gray-800">admin@example.com</span> (Manager)</p><p>🔑 <span className="font-mono text-gray-800">password</span></p></div></div>
         </div>
       </main>
     );
