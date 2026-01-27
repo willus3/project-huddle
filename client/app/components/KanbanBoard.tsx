@@ -1,4 +1,3 @@
-// client/app/components/KanbanBoard.tsx
 "use client";
 import React from 'react';
 
@@ -10,82 +9,105 @@ const COLUMNS = [
   { id: 'Completed', label: '✅ Completed',           bg: 'bg-gray-200',  text: 'text-gray-800' },
 ];
 
-export default function KanbanBoard({ ideas, onUpdate }: { ideas: any[], onUpdate: any }) {
+// Added 'isManager' prop
+export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any[], onUpdate: any, isManager: boolean }) {
 
   const handleDragStart = (e: React.DragEvent, id: number) => {
+    if (!isManager) return; // Lock dragging
     e.dataTransfer.setData("ideaId", id.toString());
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
+    if (isManager) e.preventDefault();
   };
 
   const handleDrop = (e: React.DragEvent, newStatus: string) => {
     e.preventDefault();
+    if (!isManager) return;
     const ideaId = e.dataTransfer.getData("ideaId");
     onUpdate(ideaId, { status: newStatus });
   };
 
   const handleMarkComplete = (id: string) => {
-      // Moves item to the 'Completed' column
       onUpdate(id, { status: 'Completed' });
+  };
+
+  const handleDateChange = (id: string, newDate: string) => {
+      onUpdate(id, { next_review_date: newDate });
+  };
+
+  const isOverdue = (dateString: string) => {
+      if (!dateString) return false;
+      const today = new Date();
+      today.setHours(0,0,0,0); 
+      const reviewDate = new Date(dateString);
+      return reviewDate < today;
   };
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4 h-[500px]">
       {COLUMNS.map(col => {
-        // Filter ideas that match this column's ID
         const colIdeas = ideas.filter(i => i.status === col.id);
 
         return (
-          <div 
-            key={col.id}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, col.id)}
-            className={`min-w-[280px] w-1/5 rounded-xl ${col.bg} p-4 flex flex-col`}
-          >
+          <div key={col.id} 
+            onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, col.id)}
+            className={`min-w-[280px] w-1/5 rounded-xl ${col.bg} p-4 flex flex-col`}>
             <h3 className={`font-bold ${col.text} mb-4 flex justify-between items-center`}>
               {col.label}
-              <span className="bg-white/50 px-2 py-1 rounded-full text-xs text-black">
-                {colIdeas.length}
-              </span>
+              <span className="bg-white/50 px-2 py-1 rounded-full text-xs text-black">{colIdeas.length}</span>
             </h3>
 
             <div className="flex-1 overflow-y-auto space-y-3">
-              {colIdeas.map(idea => (
-                <div 
-                  key={idea.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, idea.id)}
-                  className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md cursor-grab active:cursor-grabbing"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-bold uppercase text-gray-400">{idea.category}</span>
-                    {/* User Avatar / Initials */}
-                    {idea.full_name && (
-                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full" title={idea.full_name}>
-                             👤 {idea.full_name.split(' ')[0]}
-                         </span>
+              {colIdeas.map(idea => {
+                const overdue = isOverdue(idea.next_review_date);
+                const cardBorder = overdue ? 'border-l-4 border-red-500' : 'border border-gray-100';
+                const cardBg = overdue ? 'bg-red-50' : 'bg-white';
+
+                return (
+                    <div key={idea.id} draggable={isManager} onDragStart={(e) => handleDragStart(e, idea.id)}
+                    className={`${cardBg} ${cardBorder} p-4 rounded-lg shadow-sm border-gray-200 transition-all ${isManager ? 'hover:shadow-md cursor-grab active:cursor-grabbing' : 'cursor-default'}`}>
+                    
+                    <div className="flex justify-between items-start mb-2">
+                        <span className="text-[10px] font-bold uppercase text-gray-400">{idea.category}</span>
+                        {idea.full_name && (
+                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full" title={idea.full_name}>👤 {idea.full_name.split(' ')[0]}</span>
+                        )}
+                    </div>
+                    
+                    <p className="font-bold text-gray-800 text-sm mb-3">{idea.title}</p>
+                    
+                    {/* REVIEW DATE PICKER - Disabled for Employees */}
+                    {col.id !== 'Completed' && (
+                        <div className="mb-3">
+                            <label className="text-[10px] uppercase font-bold text-gray-400 flex items-center gap-1">
+                                {overdue && <span className="text-red-600 animate-pulse">⚠️ Review Due:</span>}
+                                {!overdue && <span>Next Review:</span>}
+                            </label>
+                            <input 
+                                type="date" disabled={!isManager} // <--- LOCKED FOR EMPLOYEES
+                                className={`text-xs p-1 rounded border w-full mt-1 ${overdue ? 'border-red-300 text-red-700 bg-red-100 font-bold' : 'border-gray-200 text-gray-600'} ${!isManager && 'opacity-50 cursor-not-allowed'}`}
+                                value={idea.next_review_date ? idea.next_review_date.split('T')[0] : ''}
+                                onChange={(e) => handleDateChange(idea.id, e.target.value)}
+                            />
+                        </div>
                     )}
-                  </div>
-                  
-                  <p className="font-bold text-gray-800 text-sm mb-3">{idea.title}</p>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex justify-between items-center border-t pt-2 border-gray-100">
-                      {col.id !== 'Completed' ? (
-                          <button 
-                            onClick={() => handleMarkComplete(idea.id)}
-                            className="text-xs text-green-600 font-bold hover:bg-green-50 px-2 py-1 rounded transition"
-                          >
-                              Done? ✅
-                          </button>
-                      ) : (
-                          <span className="text-xs text-gray-400 italic">Implemented</span>
-                      )}
-                  </div>
-                </div>
-              ))}
+
+                    {/* Action Buttons - Hidden for Employees */}
+                    <div className="flex justify-between items-center border-t pt-2 border-gray-100">
+                        {col.id !== 'Completed' ? (
+                            isManager ? ( // <--- Only show button if Manager
+                                <button onClick={() => handleMarkComplete(idea.id)} className="text-xs text-green-600 font-bold hover:bg-green-50 px-2 py-1 rounded transition">Done? ✅</button>
+                            ) : (
+                                <span className="text-xs text-gray-300 italic">In Progress</span>
+                            )
+                        ) : (
+                            <span className="text-xs text-gray-400 italic">Implemented</span>
+                        )}
+                    </div>
+                    </div>
+                );
+              })}
             </div>
           </div>
         );

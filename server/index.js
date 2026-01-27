@@ -75,12 +75,13 @@ app.get('/ideas', async (req, res) => {
 });
 
 // ==========================================
-// ROUTE: Update Idea (PUT)
+// ROUTE: Update Idea (PUT) - Now with Review Date
 // ==========================================
 app.put('/ideas/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, impact, effort, user_id } = req.body;
+        // Added next_review_date to the destructured body
+        const { status, impact, effort, user_id, next_review_date } = req.body;
 
         const updateQuery = `
             UPDATE ideas 
@@ -88,12 +89,14 @@ app.put('/ideas/:id', async (req, res) => {
                 status = COALESCE($1, status),
                 impact = COALESCE($2, impact),
                 effort = COALESCE($3, effort),
-                assignee_id = COALESCE($4, assignee_id)
-            WHERE id = $5 
+                assignee_id = COALESCE($4, assignee_id),
+                next_review_date = COALESCE($5, next_review_date)
+            WHERE id = $6 
             RETURNING *
         `;
 
-        const updatedIdea = await pool.query(updateQuery, [status, impact, effort, user_id, id]);
+        // Note: We added next_review_date as the 5th parameter, id is now 6th
+        const updatedIdea = await pool.query(updateQuery, [status, impact, effort, user_id, next_review_date, id]);
 
         if (updatedIdea.rows.length === 0) {
             return res.status(404).json({ message: "Idea not found" });
@@ -317,6 +320,39 @@ app.put('/teams/:id', async (req, res) => {
             [name, monthly_goal, id]
         );
         res.json("Team Updated");
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ROUTE: Get Company Branding (Public)
+// ==========================================
+app.get('/settings/branding', async (req, res) => {
+    try {
+        // We assume Single Tenant, so we always grab Organization ID 1
+        const settings = await pool.query("SELECT name, logo_url, primary_color FROM organizations WHERE id = 1");
+        res.json(settings.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ADMIN ROUTE: Update Branding
+// ==========================================
+app.put('/settings/branding', async (req, res) => {
+    try {
+        const { name, logo_url, primary_color } = req.body;
+        
+        // Update ID 1
+        const update = await pool.query(
+            "UPDATE organizations SET name = $1, logo_url = $2, primary_color = $3 WHERE id = 1 RETURNING *",
+            [name, logo_url, primary_color]
+        );
+        res.json(update.rows[0]);
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
