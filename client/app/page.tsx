@@ -10,7 +10,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showSettings, setShowSettings] = useState(false);
   
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [ideas, setIdeas] = useState<any[]>([]);
   
   // Stats & Filters
@@ -20,15 +20,23 @@ export default function Home() {
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [errorMsg, setErrorMsg] = useState("");
+  
+  // IDEA FORM
   const [formData, setFormData] = useState({
     title: "", problem_statement: "", proposed_solution: "", expected_benefit: "", category: "Safety", 
   });
   const [newGoal, setNewGoal] = useState(10);
 
-  // --- HELPER FUNCTIONS (Defined before useEffects) ---
+  // ADMIN STATE
+  const [editingTeamId, setEditingTeamId] = useState<number | null>(null);
+  const [adminTeamForm, setAdminTeamForm] = useState({ name: "", monthly_goal: 10 });
+  
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [adminUserForm, setAdminUserForm] = useState({ full_name: "", email: "", password: "", role: "employee", team_id: "", monthly_goal: 5 });
+
+  // --- HELPER FUNCTIONS ---
   const fetchUsers = () => fetch("http://localhost:5000/users").then(res => res.json()).then(setUsers);
   
-  // UPDATED: Now accepts a filter argument
   const fetchIdeas = (teamId: string = "all") => {
     let url = "http://localhost:5000/ideas";
     if (teamId !== "all") {
@@ -38,7 +46,6 @@ export default function Home() {
   };
 
   const fetchTeamStats = () => {
-    // For the User Dashboard (Tab 1), always fetch the User's own team stats
     const teamId = currentUser?.team_id || 1;
     fetch(`http://localhost:5000/stats/${teamId}`) 
       .then(res => res.json())
@@ -53,14 +60,10 @@ export default function Home() {
   };
 
   // --- EFFECTS ---
-
-  // 1. INITIAL LOAD (User & Company Data)
   useEffect(() => {
     if (currentUser) {
       fetchUsers();
       fetchCompanyStats();
-      
-      // Load initial ideas based on role
       const initialFilter = currentUser.role === 'manager' ? "all" : (String(currentUser.team_id) || "1");
       setSelectedTeamFilter(initialFilter);
       fetchIdeas(initialFilter);
@@ -68,28 +71,21 @@ export default function Home() {
     }
   }, [currentUser]);
 
-  // 2. LISTEN FOR FILTER CHANGES (The Critical Fix)
   useEffect(() => {
     if (currentUser) {
-      // A. Re-fetch the Idea List for the selected team
       fetchIdeas(selectedTeamFilter);
-
-      // B. Update the Stats Cards
       if (selectedTeamFilter === "all") {
-        // AGGREGATE MODE: Sum up stats from companyStats
         if (companyStats.length > 0) {
           const totalActual = companyStats.reduce((acc, curr) => acc + parseInt(curr.submissions || 0), 0);
           const totalGoal = companyStats.reduce((acc, curr) => acc + curr.monthly_goal, 0);
-          
           setTeamStats({
             team: { name: "All Teams Overview", monthly_goal: totalGoal },
             teamActual: totalActual,
-            users: [] // Hide individual users in Aggregate view
+            users: [] 
           });
           setNewGoal(0); 
         }
       } else {
-        // SPECIFIC TEAM MODE: Fetch deep stats from DB
         fetch(`http://localhost:5000/stats/${selectedTeamFilter}`)
           .then(res => res.json())
           .then(data => {
@@ -98,7 +94,7 @@ export default function Home() {
           });
       }
     }
-  }, [selectedTeamFilter, companyStats]); // Re-run when filter or company data changes
+  }, [selectedTeamFilter, companyStats]); 
 
   // --- ACTIONS ---
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -111,11 +107,16 @@ export default function Home() {
         const user = await res.json();
         setCurrentUser(user);
         setErrorMsg("");
+        setActiveTab("dashboard");
       } else { setErrorMsg("Invalid credentials"); }
     } catch (err) { setErrorMsg("Login failed"); }
   };
 
-  const handleLogout = () => { setCurrentUser(null); setLoginForm({ email: "", password: "" }); };
+  const handleLogout = () => { 
+    setCurrentUser(null); 
+    setLoginForm({ email: "", password: "" }); 
+    setActiveTab("dashboard");
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -127,7 +128,6 @@ export default function Home() {
       if (response.ok) {
         setFormData({ title: "", problem_statement: "", proposed_solution: "", expected_benefit: "", category: "Safety" });
         alert("Idea Submitted!");
-        // Refresh data
         fetchIdeas(selectedTeamFilter);
         fetchTeamStats();
         fetchCompanyStats();
@@ -139,7 +139,6 @@ export default function Home() {
     await fetch(`http://localhost:5000/ideas/${id}`, {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updates),
     });
-    // Refresh data
     fetchIdeas(selectedTeamFilter);
     fetchTeamStats();
     fetchCompanyStats();
@@ -152,11 +151,57 @@ export default function Home() {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal: newGoal }),
     });
     setShowSettings(false);
-    // Refresh stats
     const res = await fetch(`http://localhost:5000/stats/${selectedTeamFilter}`);
     const data = await res.json();
     setTeamStats(data);
     fetchCompanyStats();
+  };
+
+  // --- ADMIN ACTIONS (Updated) ---
+  
+  const handleSaveTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = editingTeamId ? `http://localhost:5000/teams/${editingTeamId}` : "http://localhost:5000/teams";
+    const method = editingTeamId ? "PUT" : "POST";
+    
+    await fetch(url, {
+        method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(adminTeamForm),
+    });
+    alert(editingTeamId ? "Team Updated!" : "Team Created!");
+    setAdminTeamForm({ name: "", monthly_goal: 10 });
+    setEditingTeamId(null);
+    fetchCompanyStats();
+  };
+
+  const handleEditTeam = (team: any) => {
+    setEditingTeamId(team.id);
+    setAdminTeamForm({ name: team.name, monthly_goal: team.monthly_goal });
+  };
+
+  const handleSaveUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = editingUserId ? `http://localhost:5000/users/${editingUserId}` : "http://localhost:5000/users";
+    const method = editingUserId ? "PUT" : "POST";
+
+    await fetch(url, {
+        method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(adminUserForm),
+    });
+    alert(editingUserId ? "User Updated!" : "User Created!");
+    setAdminUserForm({ full_name: "", email: "", password: "", role: "employee", team_id: "", monthly_goal: 5 });
+    setEditingUserId(null);
+    fetchUsers();
+  };
+
+  const handleEditUser = (user: any) => {
+    setEditingUserId(user.id);
+    setAdminUserForm({ 
+        full_name: user.full_name, 
+        email: user.email, 
+        password: "", // Don't allow editing password here for now unless needed
+        role: user.role, 
+        team_id: user.team_id, 
+        monthly_goal: user.monthly_goal 
+    });
   };
 
   const myIdeas = ideas.filter(i => i.submitter_id === currentUser?.id);
@@ -206,6 +251,9 @@ export default function Home() {
             <button onClick={() => setActiveTab("dashboard")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'dashboard' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>My Dashboard</button>
             <button onClick={() => setActiveTab("huddle")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'huddle' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Team Huddle</button>
             <button onClick={() => setActiveTab("company")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'company' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Company Overview</button>
+            {currentUser.role === 'manager' && (
+                <button onClick={() => setActiveTab("admin")} className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'admin' ? 'bg-purple-100 text-purple-700' : 'text-gray-500 hover:text-purple-600'}`}>⚙️ Admin</button>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -272,7 +320,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* --- TAB 2: HUDDLE (WITH FILTERS) --- */}
+        {/* --- TAB 2: HUDDLE --- */}
         {activeTab === "huddle" && (
           <div>
             <div className="bg-gray-900 text-white p-6 rounded-xl shadow-md mb-8">
@@ -281,11 +329,8 @@ export default function Home() {
                   <h2 className="text-2xl font-bold">Team Performance</h2>
                   <p className="text-gray-400 text-sm">Target vs. Actual Submissions</p>
                 </div>
-                
-                {/* SETTINGS (Managers Only) */}
                 {currentUser.role === 'manager' && (
                   <div className="flex gap-4">
-                    {/* FILTER DROPDOWN */}
                     <select 
                       value={selectedTeamFilter}
                       onChange={(e) => setSelectedTeamFilter(e.target.value)}
@@ -296,8 +341,6 @@ export default function Home() {
                         <option key={team.id} value={team.id}>{team.name}</option>
                       ))}
                     </select>
-
-                    {/* SET GOALS BUTTON (Only show if a Specific Team is selected) */}
                     {selectedTeamFilter !== 'all' && (
                       <button onClick={() => setShowSettings(!showSettings)} className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs font-bold border border-gray-600">
                           ⚙️ Set Goals
@@ -306,7 +349,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              
               {showSettings && (
                  <div className="bg-gray-800 p-4 rounded mb-4 border border-gray-700 animate-in fade-in slide-in-from-top-2">
                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Update Team Monthly Goal</label>
@@ -317,8 +359,6 @@ export default function Home() {
                     </div>
                  </div>
               )}
-              
-              {/* Scoreboard */}
               {teamStats ? (
                 <div className="flex gap-8 items-center mt-6">
                   <div className="flex-1">
@@ -327,7 +367,6 @@ export default function Home() {
                        <div className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-green-500' : 'bg-blue-500'}`} style={{width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%`}}></div>
                     </div>
                   </div>
-                  {/* Hide User list in "All" mode to avoid clutter */}
                   {selectedTeamFilter !== 'all' && (
                     <div className="w-1/3 border-l border-gray-700 pl-8">
                         <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3>
@@ -344,15 +383,11 @@ export default function Home() {
                 </div>
               ) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}
             </div>
-
-            {/* Note about Filter */}
             {selectedTeamFilter === 'all' ? (
               <p className="mb-4 text-xs font-bold text-gray-400 uppercase">Showing Ideas from: <span className="text-blue-600">All Teams</span></p>
             ) : (
               <p className="mb-4 text-xs font-bold text-gray-400 uppercase">Showing Ideas from: <span className="text-blue-600">{teamStats?.team?.name}</span></p>
             )}
-
-            {/* --- EXECUTION BOARDS (Now uses fetched ideas directly) --- */}
             <MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} />
             <hr className="my-12 border-gray-200" />
             <h2 className="text-xl font-bold text-gray-800 mb-4">Execution Tracking</h2>
@@ -380,6 +415,115 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* --- TAB 4: ADMIN (UPDATED) --- */}
+        {activeTab === "admin" && currentUser.role === 'manager' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* LEFT COLUMN: TEAMS */}
+                <div className="space-y-6">
+                    <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">{editingTeamId ? '✏️ Edit Department' : '🏢 Add New Department'}</h2>
+                        <form onSubmit={handleSaveTeam} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Team Name</label>
+                                <input type="text" className="w-full border p-3 rounded bg-gray-50 text-black font-medium" 
+                                    placeholder="e.g. Shipping & Receiving"
+                                    value={adminTeamForm.name} onChange={e => setAdminTeamForm({...adminTeamForm, name: e.target.value})} required />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Monthly Idea Goal</label>
+                                <input type="number" className="w-full border p-3 rounded bg-gray-50 text-black font-medium" 
+                                    value={adminTeamForm.monthly_goal} onChange={e => setAdminTeamForm({...adminTeamForm, monthly_goal: parseInt(e.target.value)})} required />
+                            </div>
+                            <div className="flex gap-2">
+                                <button type="submit" className="flex-1 bg-gray-900 text-white font-bold py-3 rounded hover:bg-gray-800">{editingTeamId ? 'Update Team' : 'Create Team'}</button>
+                                {editingTeamId && <button type="button" onClick={() => { setEditingTeamId(null); setAdminTeamForm({ name: "", monthly_goal: 10 }); }} className="px-4 py-3 bg-gray-200 text-gray-700 font-bold rounded">Cancel</button>}
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200"><h3 className="font-bold text-gray-800">Existing Departments</h3></div>
+                        <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
+                            {companyStats.map(team => (
+                                <div key={team.id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+                                    <div><div className="font-bold text-gray-800">{team.name}</div><div className="text-xs text-gray-500">Goal: {team.monthly_goal}</div></div>
+                                    <button onClick={() => handleEditTeam(team)} className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded font-bold hover:bg-blue-100">Edit</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: USERS */}
+                <div className="space-y-6">
+                    <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">{editingUserId ? '✏️ Edit Employee' : '👤 Onboard Employee'}</h2>
+                        <form onSubmit={handleSaveUser} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                                <input type="text" className="w-full border p-3 rounded bg-gray-50 text-black font-medium" 
+                                    placeholder="e.g. John Doe"
+                                    value={adminUserForm.full_name} onChange={e => setAdminUserForm({...adminUserForm, full_name: e.target.value})} required />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email (Login ID)</label>
+                                <input type="email" className="w-full border p-3 rounded bg-gray-50 text-black font-medium" 
+                                    placeholder="john@acme.com"
+                                    value={adminUserForm.email} onChange={e => setAdminUserForm({...adminUserForm, email: e.target.value})} required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Role</label>
+                                    <select className="w-full border p-3 rounded bg-gray-50 text-black" 
+                                        value={adminUserForm.role} onChange={e => setAdminUserForm({...adminUserForm, role: e.target.value})}>
+                                        <option value="employee">Employee</option>
+                                        <option value="manager">Manager</option>
+                                    </select>
+                                </div>
+                                {!editingUserId && (
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Password</label>
+                                        <input type="text" className="w-full border p-3 rounded bg-gray-50 text-black font-medium" 
+                                            value={adminUserForm.password} onChange={e => setAdminUserForm({...adminUserForm, password: e.target.value})} required={!editingUserId} />
+                                    </div>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Assign to Team</label>
+                                <select className="w-full border p-3 rounded bg-gray-50 text-black font-bold" 
+                                    value={adminUserForm.team_id} onChange={e => setAdminUserForm({...adminUserForm, team_id: e.target.value})} required>
+                                    <option value="">-- Select Department --</option>
+                                    {companyStats.map(team => (
+                                        <option key={team.id} value={team.id}>{team.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex gap-2">
+                                <button type="submit" className="flex-1 bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-700">{editingUserId ? 'Update User' : 'Create User'}</button>
+                                {editingUserId && <button type="button" onClick={() => { setEditingUserId(null); setAdminUserForm({ full_name: "", email: "", password: "", role: "employee", team_id: "", monthly_goal: 5 }); }} className="px-4 py-3 bg-gray-200 text-gray-700 font-bold rounded">Cancel</button>}
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200"><h3 className="font-bold text-gray-800">Employee Directory</h3></div>
+                        <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
+                            {users.map(u => (
+                                <div key={u.id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+                                    <div>
+                                        <div className="font-bold text-gray-800">{u.full_name} <span className="text-xs text-gray-400 font-normal">({u.role})</span></div>
+                                        <div className="text-xs text-gray-500">{u.email} • {u.team_name || "No Team"}</div>
+                                    </div>
+                                    <button onClick={() => handleEditUser(u)} className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded font-bold hover:bg-blue-100">Edit</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
       </div>
     </main>
   );

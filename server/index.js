@@ -226,12 +226,97 @@ app.put('/teams/:id/goal', async (req, res) => {
 });
 
 // ==========================================
-// ROUTE: Get Users (Needed for Frontend)
+// ROUTE: Get Users (Enhanced for Admin)
 // ==========================================
 app.get('/users', async (req, res) => {
     try {
-        const allUsers = await pool.query("SELECT id, full_name, team_id, role, monthly_goal FROM users ORDER BY full_name ASC");
+        const allUsers = await pool.query(`
+            SELECT u.id, u.full_name, u.email, u.role, u.team_id, u.monthly_goal, t.name as team_name 
+            FROM users u
+            LEFT JOIN teams t ON u.team_id = t.id
+            ORDER BY u.full_name ASC
+        `);
         res.json(allUsers.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ADMIN ROUTE: Create New Team
+// ==========================================
+app.post('/teams', async (req, res) => {
+    try {
+        const { name, monthly_goal } = req.body;
+        const newTeam = await pool.query(
+            "INSERT INTO teams (name, monthly_goal) VALUES ($1, $2) RETURNING *",
+            [name, monthly_goal]
+        );
+        res.json(newTeam.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ADMIN ROUTE: Create New User
+// ==========================================
+app.post('/users', async (req, res) => {
+    try {
+        const { full_name, email, password, role, team_id, monthly_goal } = req.body;
+        
+        // Default goal to 5 if not provided
+        const goal = monthly_goal || 5;
+
+        const newUser = await pool.query(
+            `INSERT INTO users (full_name, email, password_hash, role, team_id, monthly_goal) 
+             VALUES ($1, $2, $3, $4, $5, $6) 
+             RETURNING id, full_name, email, role, team_id`,
+            [full_name, email, password, role, team_id, goal]
+        );
+        
+        res.json(newUser.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ADMIN ROUTE: Update User
+// ==========================================
+app.put('/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { full_name, email, role, team_id, monthly_goal } = req.body;
+        
+        await pool.query(
+            `UPDATE users SET full_name = $1, email = $2, role = $3, team_id = $4, monthly_goal = $5 
+             WHERE id = $6`,
+            [full_name, email, role, team_id, monthly_goal, id]
+        );
+        res.json("User Updated");
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ADMIN ROUTE: Update Team
+// ==========================================
+app.put('/teams/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, monthly_goal } = req.body;
+        
+        await pool.query(
+            "UPDATE teams SET name = $1, monthly_goal = $2 WHERE id = $3",
+            [name, monthly_goal, id]
+        );
+        res.json("Team Updated");
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
