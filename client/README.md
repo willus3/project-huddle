@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🚀 Project Huddle
+Project Huddle is a B2B Micro-SaaS application designed to digitize the "Daily Huddle" process used in Lean Manufacturing. It replaces physical whiteboards and sticky notes with a real-time digital dashboard, allowing hybrid and on-site teams to capture, triage, and track continuous improvement ideas.
 
-## Getting Started
+🌟 Features
+💡 Idea Capture: Simple submission form for employees to log problems and proposed solutions.
 
-First, run the development server:
+📊 Impact/Effort Matrix: A drag-and-drop triage board to categorize ideas (Quick Wins vs. Major Projects).
 
-```bash
+✅ Execution Kanban: Track ideas through timelines (Quick Win, 30 Days, 90 Days, 1 Year).
+
+📈 KPI Dashboards: Real-time tracking of team goals vs. actual submissions.
+
+🏢 Company Leaderboard: Gamified view showing how different departments compare.
+
+⚙️ Admin Portal: Manager-only access to create Departments (Teams) and Onboard Employees.
+
+🛠️ Tech Stack
+Frontend: React (Next.js 15), Tailwind CSS
+
+Backend: Node.js, Express.js
+
+Database: PostgreSQL
+
+State Management: React Hooks (useState, useEffect)
+
+⚙️ Setup & Installation
+Follow these steps to run the project locally.
+
+1. Database Setup (PostgreSQL)
+Ensure you have PostgreSQL installed and running.
+
+Open your terminal/command prompt.
+
+Enter the Postgres shell: psql postgres
+
+Create the database:
+
+SQL
+
+CREATE DATABASE project_huddle;
+\c project_huddle
+Run the SQL Schema (Create Tables). See server/database.sql for the full schema.
+
+2. Backend Setup (Server)
+The backend runs on Port 5000.
+
+Bash
+
+cd server
+npm install
+node index.js
+You should see: Server has started on port 5000
+
+3. Frontend Setup (Client)
+The frontend runs on Port 3000. Open a new terminal window:
+
+Bash
+
+cd client
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open your browser to http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🔑 Usage & Demo Accounts
+The application uses role-based access control (Manager vs. Employee).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Manager Account
+Email: demo@example.com
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Password: (Any password works in dev mode)
 
-## Learn More
+Capabilities: View all teams, Edit Goals, Access ⚙️ Admin Portal to add users/teams.
 
-To learn more about Next.js, take a look at the following resources:
+Employee Account
+Email: worker@acme.com
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Password: (Any password works in dev mode)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Capabilities: Submit ideas, View own dashboard, View Team Huddle (Read-Only Matrix).
 
-## Deploy on Vercel
+📂 Project Structure
+project-huddle/
+├── client/                 # Next.js Frontend
+│   ├── app/
+│   │   ├── components/     # Drag-and-Drop Boards (Matrix, Kanban)
+│   │   └── page.tsx        # Main Application Logic (Dashboard, Admin, Tabs)
+│   └── public/
+├── server/                 # Node/Express Backend
+│   ├── index.js            # API Routes (GET, POST, PUT)
+│   ├── db.js               # Database Connection
+│   └── database.sql        # SQL Schema Reference
+└── README.md
+🛣️ Roadmap (Upcoming Features)
+[ ] Review Cycle Engine: Automatic flagging of long-term ideas (30/90 days) for weekly review.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+[ ] Email Notifications: Notify users when their idea is approved or completed.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[ ] Mobile View: Optimized layout for shop-floor tablets.
+
+📜 License
+Private Learning Project.
