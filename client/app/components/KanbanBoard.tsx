@@ -9,11 +9,10 @@ const COLUMNS = [
   { id: 'Completed', label: '✅ Completed',           bg: 'bg-gray-200',  text: 'text-gray-800' },
 ];
 
-// Added 'isManager' prop
 export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any[], onUpdate: any, isManager: boolean }) {
 
   const handleDragStart = (e: React.DragEvent, id: number) => {
-    if (!isManager) return; // Lock dragging
+    if (!isManager) return; 
     e.dataTransfer.setData("ideaId", id.toString());
   };
 
@@ -45,14 +44,17 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
   };
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4 h-[500px]">
+    // Mobile: Snap scrolling container
+    <div className="flex gap-4 overflow-x-auto pb-4 h-[500px] snap-x snap-mandatory">
       {COLUMNS.map(col => {
         const colIdeas = ideas.filter(i => i.status === col.id);
 
         return (
           <div key={col.id} 
             onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, col.id)}
-            className={`min-w-[280px] w-1/5 rounded-xl ${col.bg} p-4 flex flex-col`}>
+            // Mobile: 85vw width (so you see part of the next column). Desktop: 1/5 width.
+            className={`min-w-[85vw] md:min-w-[280px] md:w-1/5 rounded-xl ${col.bg} p-4 flex flex-col snap-center`}>
+            
             <h3 className={`font-bold ${col.text} mb-4 flex justify-between items-center`}>
               {col.label}
               <span className="bg-white/50 px-2 py-1 rounded-full text-xs text-black">{colIdeas.length}</span>
@@ -77,7 +79,6 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
                     
                     <p className="font-bold text-gray-800 text-sm mb-3">{idea.title}</p>
                     
-                    {/* REVIEW DATE PICKER - Disabled for Employees */}
                     {col.id !== 'Completed' && (
                         <div className="mb-3">
                             <label className="text-[10px] uppercase font-bold text-gray-400 flex items-center gap-1">
@@ -85,7 +86,7 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
                                 {!overdue && <span>Next Review:</span>}
                             </label>
                             <input 
-                                type="date" disabled={!isManager} // <--- LOCKED FOR EMPLOYEES
+                                type="date" disabled={!isManager}
                                 className={`text-xs p-1 rounded border w-full mt-1 ${overdue ? 'border-red-300 text-red-700 bg-red-100 font-bold' : 'border-gray-200 text-gray-600'} ${!isManager && 'opacity-50 cursor-not-allowed'}`}
                                 value={idea.next_review_date ? idea.next_review_date.split('T')[0] : ''}
                                 onChange={(e) => handleDateChange(idea.id, e.target.value)}
@@ -93,10 +94,9 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
                         </div>
                     )}
 
-                    {/* Action Buttons - Hidden for Employees */}
                     <div className="flex justify-between items-center border-t pt-2 border-gray-100">
                         {col.id !== 'Completed' ? (
-                            isManager ? ( // <--- Only show button if Manager
+                            isManager ? ( 
                                 <button onClick={() => handleMarkComplete(idea.id)} className="text-xs text-green-600 font-bold hover:bg-green-50 px-2 py-1 rounded transition">Done? ✅</button>
                             ) : (
                                 <span className="text-xs text-gray-300 italic">In Progress</span>

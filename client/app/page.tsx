@@ -216,6 +216,7 @@ export default function Home() {
             <div><label className="block text-sm font-bold text-gray-900 mb-1">Password</label><input type="password" required className="w-full border-2 border-gray-300 p-3 rounded text-black font-medium outline-none focus:border-blue-600" value={loginForm.password} onChange={(e) => setLoginForm({...loginForm, password: e.target.value})} /></div>
             <button type="submit" style={{ backgroundColor: branding.primary_color }} className="w-full text-white font-bold py-4 rounded hover:opacity-90 transition shadow-md text-lg">Sign In</button>
           </form>
+          {/* Demo accounts removed for production */}
         </div>
       </main>
     );
@@ -223,26 +224,40 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <nav style={{ borderBottomColor: branding.primary_color }} className="bg-white border-b-4 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div className="flex items-center gap-8">
-          {branding.logo_url ? <img src={branding.logo_url} alt={branding.name} className="h-10 object-contain" /> : <h1 className="text-2xl font-bold text-gray-900">{branding.name} 🚀</h1>}
-          <div className="flex bg-gray-100 p-1 rounded-lg">
-            <button onClick={() => setActiveTab("dashboard")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'dashboard' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>My Dashboard</button>
-            <button onClick={() => setActiveTab("huddle")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'huddle' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Team Huddle</button>
-            <button onClick={() => setActiveTab("company")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'company' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Company Overview</button>
-            {currentUser.role === 'manager' && (<button onClick={() => setActiveTab("admin")} className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'admin' ? 'bg-purple-100 text-purple-700' : 'text-gray-500 hover:text-purple-600'}`}>⚙️ Admin</button>)}
-          </div>
+      
+      {/* MOBILE RESPONSIVE NAV */}
+      <nav 
+        style={{ borderBottomColor: branding.primary_color }}
+        className="bg-white border-b-4 px-4 py-4 flex flex-col md:flex-row justify-between items-center sticky top-0 z-50 gap-4 shadow-sm"
+      >
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 w-full md:w-auto">
+            {branding.logo_url ? (
+                <img src={branding.logo_url} alt={branding.name} className="h-10 object-contain" />
+            ) : (
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 text-center">{branding.name} 🚀</h1>
+            )}
+            
+            {/* Scrollable Nav on Small Screens */}
+            <div className="flex bg-gray-100 p-1 rounded-lg w-full md:w-auto overflow-x-auto">
+             <div className="flex flex-nowrap min-w-max">
+                <button onClick={() => setActiveTab("dashboard")} className={`px-3 py-2 rounded-md text-xs md:text-sm font-medium transition-all ${activeTab === 'dashboard' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>My Dashboard</button>
+                <button onClick={() => setActiveTab("huddle")} className={`px-3 py-2 rounded-md text-xs md:text-sm font-medium transition-all ${activeTab === 'huddle' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Team Huddle</button>
+                <button onClick={() => setActiveTab("company")} className={`px-3 py-2 rounded-md text-xs md:text-sm font-medium transition-all ${activeTab === 'company' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Overview</button>
+                {currentUser.role === 'manager' && (<button onClick={() => setActiveTab("admin")} className={`px-3 py-2 rounded-md text-xs md:text-sm font-bold transition-all ${activeTab === 'admin' ? 'bg-purple-100 text-purple-700' : 'text-gray-500 hover:text-purple-600'}`}>⚙️ Admin</button>)}
+             </div>
+            </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right"><p className="text-sm font-bold text-gray-900">{currentUser.full_name}</p><p className="text-xs text-gray-500">{currentUser.role === 'manager' ? '⭐ Manager' : 'Team Member'}</p></div>
-          <button onClick={handleLogout} className="text-xs text-red-500 hover:underline">Log Out</button>
+        <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 mt-2 md:mt-0 border-gray-100">
+          <div className="text-left md:text-right"><p className="text-sm font-bold text-gray-900">{currentUser.full_name}</p><p className="text-xs text-gray-500">{currentUser.role === 'manager' ? '⭐ Manager' : 'Team Member'}</p></div>
+          <button onClick={handleLogout} className="text-xs text-red-500 hover:underline border border-red-100 px-3 py-1 rounded bg-red-50">Log Out</button>
         </div>
       </nav>
 
-      <div className="max-w-[1400px] mx-auto p-8">
+      <div className="max-w-[1400px] mx-auto p-4 md:p-8">
         {activeTab === "dashboard" && (
+          // MOBILE RESPONSIVE GRID
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200">
               <h2 className="text-xl font-bold text-gray-800 mb-6">💡 Submit Improvement Idea</h2>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Title</label><input type="text" className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black font-medium" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} required /></div>
