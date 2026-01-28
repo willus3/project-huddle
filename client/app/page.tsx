@@ -85,6 +85,15 @@ export default function Home() {
   // --- EFFECTS ---
   useEffect(() => { fetchBranding(); }, []);
 
+  // Apply dark mode class to HTML element
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   useEffect(() => {
     if (currentUser) {
       fetchUsers();
@@ -205,19 +214,9 @@ export default function Home() {
 
   const myIdeas = ideas.filter(i => i.submitter_id === currentUser?.id);
 
-  // --- RENDER WRAPPER FOR DARK MODE ---
-  // This div wraps the entire application
-  const AppWrapper = ({ children }: { children: React.ReactNode }) => (
-      <div className={`${isDarkMode ? 'dark' : ''} min-h-screen`}>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
-              {children}
-          </div>
-      </div>
-  );
-
   if (!currentUser) {
     return (
-      <AppWrapper>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
         <main className="min-h-screen flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div className="flex justify-center mb-4">
@@ -232,12 +231,12 @@ export default function Home() {
             </form>
           </div>
         </main>
-      </AppWrapper>
+      </div>
     );
   }
 
   return (
-    <AppWrapper>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
       {/* NAV */}
       <nav 
         style={{ borderBottomColor: branding.primary_color }}
@@ -359,6 +358,6 @@ export default function Home() {
             </div>
         )}
       </div>
-    </AppWrapper>
+    </div>
   );
 }
