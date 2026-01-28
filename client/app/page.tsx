@@ -216,7 +216,6 @@ export default function Home() {
             <div><label className="block text-sm font-bold text-gray-900 mb-1">Password</label><input type="password" required className="w-full border-2 border-gray-300 p-3 rounded text-black font-medium outline-none focus:border-blue-600" value={loginForm.password} onChange={(e) => setLoginForm({...loginForm, password: e.target.value})} /></div>
             <button type="submit" style={{ backgroundColor: branding.primary_color }} className="w-full text-white font-bold py-4 rounded hover:opacity-90 transition shadow-md text-lg">Sign In</button>
           </form>
-          {/* Demo accounts removed for production */}
         </div>
       </main>
     );
@@ -257,23 +256,71 @@ export default function Home() {
         {activeTab === "dashboard" && (
           // MOBILE RESPONSIVE GRID
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200">
-              <h2 className="text-xl font-bold text-gray-800 mb-6">💡 Submit Improvement Idea</h2>
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Title</label><input type="text" className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black font-medium" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} required /></div>
-                <div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Category</label><select className="w-full border p-3 rounded bg-gray-50 text-black" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}><option>Safety</option><option>Quality</option><option>Delivery</option><option>Cost</option><option>Morale</option></select></div></div>
-                <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Problem Statement</label><textarea className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black h-24" value={formData.problem_statement} onChange={(e) => setFormData({...formData, problem_statement: e.target.value})} /></div>
-                <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Proposed Solution</label><textarea className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black h-24" value={formData.proposed_solution} onChange={(e) => setFormData({...formData, proposed_solution: e.target.value})} /></div>
-                <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Expected Benefit</label><input type="text" className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black" value={formData.expected_benefit} onChange={(e) => setFormData({...formData, expected_benefit: e.target.value})} /></div>
-                <button type="submit" style={{ backgroundColor: branding.primary_color }} className="w-full text-white py-4 rounded-lg font-bold text-lg hover:opacity-90 transition shadow-md">Submit Idea</button>
-              </form>
-            </div>
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 className="font-bold text-gray-800 mb-4">My Monthly Goal</h3>
-                {teamStats && currentUser ? (<div><div className="flex justify-between text-sm text-gray-600 mb-1"><span>Submitted: <strong>{teamStats.users?.find((u:any) => u.full_name === currentUser.full_name)?.actual || 0}</strong></span><span>Goal: <strong>{currentUser.monthly_goal}</strong></span></div><div className="w-full bg-gray-200 rounded-full h-4"><div className="h-4 rounded-full" style={{ backgroundColor: branding.primary_color, width: `${Math.min(100, ((teamStats.users?.find((u:any) => u.full_name === currentUser.full_name)?.actual || 0) / currentUser.monthly_goal) * 100)}%`}}></div></div></div>) : <p className="text-sm text-gray-500">Loading stats...</p>}
+            
+            {/* --- IMPROVEMENT 1: SUBMIT FORM WITH HEADER --- */}
+            <div className="bg-white rounded-xl shadow-lg border-0 overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                 <span className="text-2xl">💡</span>
+                 <h2 className="text-lg font-bold text-gray-800">Submit Improvement</h2>
               </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"><div className="bg-gray-50 px-6 py-4 border-b border-gray-200"><h3 className="font-bold text-gray-800">My Recent Submissions</h3></div><div className="divide-y divide-gray-100">{myIdeas.map(idea => (<div key={idea.id} className="p-4 flex justify-between items-center"><div><div className="font-bold text-gray-800">{idea.title}</div><div className="text-xs text-gray-500 mt-1">{idea.status}</div></div></div>))}{myIdeas.length === 0 && <p className="p-4 text-sm text-gray-500">No ideas yet. Submit one!</p>}</div></div>
+              <div className="p-6 md:p-8">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Title</label><input type="text" className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black font-medium transition-colors" placeholder="e.g. Fix loading dock door" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} required /></div>
+                    <div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Category</label><select className="w-full border p-3 rounded bg-gray-50 text-black" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}><option>Safety</option><option>Quality</option><option>Delivery</option><option>Cost</option><option>Morale</option></select></div></div>
+                    <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Problem Statement</label><textarea className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black h-24" placeholder="Describe the issue..." value={formData.problem_statement} onChange={(e) => setFormData({...formData, problem_statement: e.target.value})} /></div>
+                    <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Proposed Solution</label><textarea className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black h-24" placeholder="How do we fix it?" value={formData.proposed_solution} onChange={(e) => setFormData({...formData, proposed_solution: e.target.value})} /></div>
+                    <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">Expected Benefit</label><input type="text" className="w-full border p-3 rounded bg-gray-50 focus:bg-white text-black" placeholder="e.g. Saves 10 mins/day" value={formData.expected_benefit} onChange={(e) => setFormData({...formData, expected_benefit: e.target.value})} /></div>
+                    <button type="submit" style={{ backgroundColor: branding.primary_color }} className="w-full text-white py-4 rounded-lg font-bold text-lg hover:opacity-90 transition shadow-md mt-2">Submit Idea 🚀</button>
+                </form>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              
+              {/* --- IMPROVEMENT 2: DARK MODE GOAL CARD --- */}
+              <div className="bg-gray-900 p-6 rounded-xl shadow-xl text-white">
+                <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xl">🎯</span>
+                    <h3 className="font-bold text-white text-lg">My Monthly Goal</h3>
+                </div>
+                {teamStats && currentUser ? (
+                    <div>
+                        <div className="flex justify-between text-sm text-gray-300 mb-2">
+                            <span>Submitted: <strong className="text-white text-lg">{teamStats.users?.find((u:any) => u.full_name === currentUser.full_name)?.actual || 0}</strong></span>
+                            <span>Target: <strong className="text-white text-lg">{currentUser.monthly_goal}</strong></span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-4 border border-gray-600">
+                            <div className="h-full rounded-full transition-all duration-1000" 
+                                 style={{ backgroundColor: branding.primary_color, width: `${Math.min(100, ((teamStats.users?.find((u:any) => u.full_name === currentUser.full_name)?.actual || 0) / currentUser.monthly_goal) * 100)}%`}}>
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-3 italic">Keep pushing! You are contributing to the team's success.</p>
+                    </div>
+                ) : <p className="text-sm text-gray-500">Loading stats...</p>}
+              </div>
+
+              {/* --- IMPROVEMENT 3: BETTER LIST CARDS --- */}
+              <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 className="font-bold text-gray-800">My Recent Submissions</h3>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {myIdeas.map(idea => (
+                    <div key={idea.id} className="p-4 hover:bg-gray-50 transition flex justify-between items-center group">
+                        <div className="border-l-4 pl-3" style={{ borderLeftColor: idea.status === 'Completed' ? '#10B981' : '#9CA3AF' }}>
+                            <div className="font-bold text-gray-800 group-hover:text-blue-600 transition-colors">{idea.title}</div>
+                            <div className="text-xs text-gray-500 mt-1 flex gap-2">
+                                <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600 font-medium">{idea.category}</span>
+                                <span>{idea.status}</span>
+                            </div>
+                        </div>
+                        {idea.status === 'Completed' && <span className="text-green-500 text-xl">✅</span>}
+                    </div>
+                  ))}
+                  {myIdeas.length === 0 && <p className="p-6 text-center text-sm text-gray-500 italic">No ideas yet. Be the first to submit one!</p>}
+                </div>
+              </div>
+
             </div>
           </div>
         )}
