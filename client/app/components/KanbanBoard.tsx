@@ -2,11 +2,11 @@
 import React from 'react';
 
 const COLUMNS = [
-  { id: 'Quick_Win', label: '⚡ Quick Wins (< 1 Wk)', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800' },
-  { id: '30_Days',   label: '📅 30 Days',             bg: 'bg-sky-50/50 dark:bg-sky-950/20',  text: 'text-sky-700 dark:text-sky-400', border: 'border-sky-200 dark:border-sky-800' },
-  { id: '90_Days',   label: '🗓️ 90 Days',             bg: 'bg-violet-50/50 dark:bg-violet-950/20',text: 'text-violet-700 dark:text-violet-400', border: 'border-violet-200 dark:border-violet-800' },
-  { id: '360_Days',  label: '🏗️ 1 Year',              bg: 'bg-purple-50/50 dark:bg-purple-950/20',text: 'text-purple-700 dark:text-purple-400', border: 'border-purple-200 dark:border-purple-800' },
-  { id: 'Completed', label: '✅ Completed',           bg: 'bg-slate-50 dark:bg-slate-900/50',  text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-200 dark:border-slate-700' },
+  { id: 'Quick_Win', label: '⚡ Quick Wins (< 1 Wk)', bg: 'bg-teal-50 dark:bg-teal-950', text: 'text-teal-700 dark:text-teal-300', border: 'border-teal-200 dark:border-teal-800' },
+  { id: '30_Days',   label: '📅 30 Days',             bg: 'bg-cyan-50 dark:bg-cyan-950',  text: 'text-cyan-700 dark:text-cyan-300', border: 'border-cyan-200 dark:border-cyan-800' },
+  { id: '90_Days',   label: '🗓️ 90 Days',             bg: 'bg-indigo-50 dark:bg-indigo-950',text: 'text-indigo-700 dark:text-indigo-300', border: 'border-indigo-200 dark:border-indigo-800' },
+  { id: '360_Days',  label: '🏗️ 1 Year',              bg: 'bg-purple-50 dark:bg-purple-950',text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-800' },
+  { id: 'Completed', label: '✅ Completed',           bg: 'bg-slate-50 dark:bg-slate-900',  text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-200 dark:border-slate-700' },
 ];
 
 export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any[], onUpdate: any, isManager: boolean }) {
@@ -53,7 +53,7 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
           <div key={col.id}
             onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, col.id)}
             // Mobile: 85vw width (so you see part of the next column). Desktop: 1/5 width.
-            className={`min-w-[85vw] md:min-w-[280px] md:w-1/5 rounded-xl ${col.bg} ${col.border} border-2 p-4 flex flex-col snap-center backdrop-blur-sm`}>
+            className={`min-w-[85vw] md:min-w-[280px] md:w-1/5 rounded-xl ${col.bg} ${col.border} border-2 p-4 flex flex-col snap-center`}>
             
             <h3 className={`font-bold ${col.text} mb-4 flex justify-between items-center`}>
               {col.label}

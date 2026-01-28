@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 
 const QUADRANTS = [
-  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-400' },
-  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-sky-50/50 dark:bg-sky-950/20', border: 'border-sky-200 dark:border-sky-800', text: 'text-sky-700 dark:text-sky-400' },
-  { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-amber-50/50 dark:bg-amber-950/20', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-400' },
-  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-rose-50/50 dark:bg-rose-950/20', border: 'border-rose-200 dark:border-rose-800', text: 'text-rose-700 dark:text-rose-400' },
+  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-teal-50 dark:bg-teal-950', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300' },
+  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-cyan-50 dark:bg-cyan-950', border: 'border-cyan-200 dark:border-cyan-800', text: 'text-cyan-700 dark:text-cyan-300' },
+  { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-amber-50 dark:bg-amber-950', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300' },
+  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-rose-50 dark:bg-rose-950', border: 'border-rose-200 dark:border-rose-800', text: 'text-rose-700 dark:text-rose-300' },
 ];
 
 export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManager }: { ideas: any[], users: any[], onUpdate: any, onPromote: any, isManager: boolean }) {
@@ -39,7 +39,7 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
     // Stack Vertical on Mobile, Row on Desktop
     <div className="flex flex-col lg:flex-row gap-8 mb-12 h-auto lg:h-[600px]">
       {/* INBOX */}
-      <div className="w-full lg:w-1/4 bg-slate-50/50 dark:bg-slate-900/30 border-2 border-slate-200 dark:border-slate-700 p-4 rounded-xl backdrop-blur-sm flex flex-col max-h-[400px] lg:max-h-full">
+      <div className="w-full lg:w-1/4 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 p-4 rounded-xl flex flex-col max-h-[400px] lg:max-h-full">
         <h2 className="font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center justify-between">
           📬 Inbox <span className="bg-slate-200 dark:bg-slate-700 text-xs px-2 py-1 rounded-full font-semibold shadow-sm">{inboxIdeas.length}</span>
         </h2>
@@ -63,7 +63,7 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
           const quadIdeas = matrixIdeas.filter(i => i.impact === quad.impact && i.effort === quad.effort);
           return (
             <div key={quad.id} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, quad.impact, quad.effort)}
-              className={`${quad.bg} border-2 border-dashed ${quad.border} rounded-xl p-4 relative min-h-[200px] backdrop-blur-sm`}>
+              className={`${quad.bg} border-2 border-dashed ${quad.border} rounded-xl p-4 relative min-h-[200px]`}>
               <h3 className={`font-bold ${quad.text} text-sm uppercase mb-3`}>{quad.label}</h3>
               <div className="space-y-2 max-h-[200px] overflow-y-auto">
                 {quadIdeas.map((idea) => (
@@ -81,9 +81,9 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
                             {users.map(u => (<option key={u.id} value={u.id}>👤 {u.full_name}</option>))}
                           </select>
                           <div className="flex flex-wrap gap-1 justify-between">
-                            <button onClick={() => handlePromoteClick(idea.id, 'Quick_Win')} className="text-[10px] bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 px-2 py-1 rounded hover:bg-emerald-200 dark:hover:bg-emerald-800 flex-1 font-medium shadow-sm">⚡ Win</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '30_Days')} className="text-[10px] bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 px-2 py-1 rounded hover:bg-sky-200 dark:hover:bg-sky-800 flex-1 font-medium shadow-sm">📅 30d</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '90_Days')} className="text-[10px] bg-violet-100 dark:bg-violet-900 text-violet-800 dark:text-violet-200 px-2 py-1 rounded hover:bg-violet-200 dark:hover:bg-violet-800 flex-1 font-medium shadow-sm">🗓️ 90d</button>
+                            <button onClick={() => handlePromoteClick(idea.id, 'Quick_Win')} className="text-[10px] bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 px-2 py-1 rounded hover:bg-teal-200 dark:hover:bg-teal-800 flex-1 font-medium shadow-sm">⚡ Win</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '30_Days')} className="text-[10px] bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 px-2 py-1 rounded hover:bg-cyan-200 dark:hover:bg-cyan-800 flex-1 font-medium shadow-sm">📅 30d</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '90_Days')} className="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-2 py-1 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800 flex-1 font-medium shadow-sm">🗓️ 90d</button>
                             <button onClick={() => handlePromoteClick(idea.id, '360_Days')} className="text-[10px] bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded hover:bg-purple-200 dark:hover:bg-purple-800 flex-1 font-medium shadow-sm">🏗️ 1y</button>
                           </div>
                         </div>
