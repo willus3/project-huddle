@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 
 const QUADRANTS = [
-  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-green-50', impact: 'High', effort: 'Low' },
-  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-blue-50', impact: 'High', effort: 'High' },
-  { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-yellow-50', impact: 'Low', effort: 'Low' },
-  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-red-50', impact: 'Low', effort: 'High' },
+  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-400' },
+  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-sky-50/50 dark:bg-sky-950/20', border: 'border-sky-200 dark:border-sky-800', text: 'text-sky-700 dark:text-sky-400' },
+  { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-amber-50/50 dark:bg-amber-950/20', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-400' },
+  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-rose-50/50 dark:bg-rose-950/20', border: 'border-rose-200 dark:border-rose-800', text: 'text-rose-700 dark:text-rose-400' },
 ];
 
 export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManager }: { ideas: any[], users: any[], onUpdate: any, onPromote: any, isManager: boolean }) {
@@ -39,17 +39,17 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
     // Stack Vertical on Mobile, Row on Desktop
     <div className="flex flex-col lg:flex-row gap-8 mb-12 h-auto lg:h-[600px]">
       {/* INBOX */}
-      <div className="w-full lg:w-1/4 bg-gray-100 p-4 rounded-xl shadow-inner flex flex-col max-h-[400px] lg:max-h-full">
-        <h2 className="font-bold text-gray-700 mb-4 flex items-center justify-between">
-          📬 Inbox <span className="bg-gray-200 text-xs px-2 py-1 rounded-full">{inboxIdeas.length}</span>
+      <div className="w-full lg:w-1/4 bg-slate-50/50 dark:bg-slate-900/30 border-2 border-slate-200 dark:border-slate-700 p-4 rounded-xl backdrop-blur-sm flex flex-col max-h-[400px] lg:max-h-full">
+        <h2 className="font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center justify-between">
+          📬 Inbox <span className="bg-slate-200 dark:bg-slate-700 text-xs px-2 py-1 rounded-full font-semibold shadow-sm">{inboxIdeas.length}</span>
         </h2>
         <div className="flex-1 overflow-y-auto space-y-3 min-h-[100px]">
           {inboxIdeas.map(idea => (
             <div key={idea.id} 
               draggable={isManager} 
               onDragStart={(e) => handleDragStart(e, idea.id)}
-              className={`bg-white p-4 rounded shadow border border-gray-200 transition ${isManager ? 'cursor-move hover:shadow-md active:cursor-grabbing' : 'cursor-default opacity-90'}`}>
-              <p className="font-semibold text-gray-800">{idea.title}</p>
+              className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition ${isManager ? 'cursor-move hover:shadow-lg active:cursor-grabbing' : 'cursor-default opacity-90'}`}>
+              <p className="font-semibold text-gray-800 dark:text-gray-100">{idea.title}</p>
               {isManager && <p className="text-xs text-gray-400 mt-2">Drag to Matrix 👉</p>}
             </div>
           ))}
@@ -63,12 +63,12 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
           const quadIdeas = matrixIdeas.filter(i => i.impact === quad.impact && i.effort === quad.effort);
           return (
             <div key={quad.id} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, quad.impact, quad.effort)}
-              className={`${quad.bg} border-2 border-dashed border-gray-200 rounded-xl p-4 relative min-h-[200px]`}>
-              <h3 className="font-bold text-gray-600 text-sm uppercase mb-3">{quad.label}</h3>
+              className={`${quad.bg} border-2 border-dashed ${quad.border} rounded-xl p-4 relative min-h-[200px] backdrop-blur-sm`}>
+              <h3 className={`font-bold ${quad.text} text-sm uppercase mb-3`}>{quad.label}</h3>
               <div className="space-y-2 max-h-[200px] overflow-y-auto">
                 {quadIdeas.map((idea) => (
-                  <div key={idea.id} className="bg-white/90 p-3 rounded shadow-sm border border-gray-100 group hover:shadow-md transition-all">
-                    <p className="font-bold text-gray-800 text-sm">{idea.title}</p>
+                  <div key={idea.id} className="bg-white/95 dark:bg-gray-800/95 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 group hover:shadow-lg transition-all">
+                    <p className="font-bold text-gray-800 dark:text-gray-100 text-sm">{idea.title}</p>
                     <p className="text-xs text-gray-500 mb-2">{idea.category}</p>
                     
                     {/* ASSIGNMENT UI - VISIBLE ON MOBILE, HOVER ON DESKTOP */}
@@ -81,10 +81,10 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
                             {users.map(u => (<option key={u.id} value={u.id}>👤 {u.full_name}</option>))}
                           </select>
                           <div className="flex flex-wrap gap-1 justify-between">
-                            <button onClick={() => handlePromoteClick(idea.id, 'Quick_Win')} className="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 flex-1">⚡ Win</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '30_Days')} className="text-[10px] bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 flex-1">📅 30d</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '90_Days')} className="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-1 rounded hover:bg-indigo-200 flex-1">🗓️ 90d</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '360_Days')} className="text-[10px] bg-purple-100 text-purple-800 px-2 py-1 rounded hover:bg-purple-200 flex-1">🏗️ 1y</button>
+                            <button onClick={() => handlePromoteClick(idea.id, 'Quick_Win')} className="text-[10px] bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 px-2 py-1 rounded hover:bg-emerald-200 dark:hover:bg-emerald-800 flex-1 font-medium shadow-sm">⚡ Win</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '30_Days')} className="text-[10px] bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 px-2 py-1 rounded hover:bg-sky-200 dark:hover:bg-sky-800 flex-1 font-medium shadow-sm">📅 30d</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '90_Days')} className="text-[10px] bg-violet-100 dark:bg-violet-900 text-violet-800 dark:text-violet-200 px-2 py-1 rounded hover:bg-violet-200 dark:hover:bg-violet-800 flex-1 font-medium shadow-sm">🗓️ 90d</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '360_Days')} className="text-[10px] bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded hover:bg-purple-200 dark:hover:bg-purple-800 flex-1 font-medium shadow-sm">🏗️ 1y</button>
                           </div>
                         </div>
                       </div>

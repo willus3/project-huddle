@@ -2,11 +2,11 @@
 import React from 'react';
 
 const COLUMNS = [
-  { id: 'Quick_Win', label: '⚡ Quick Wins (< 1 Wk)', bg: 'bg-green-100', text: 'text-green-800' },
-  { id: '30_Days',   label: '📅 30 Days',             bg: 'bg-blue-100',  text: 'text-blue-800' },
-  { id: '90_Days',   label: '🗓️ 90 Days',             bg: 'bg-indigo-100',text: 'text-indigo-800' },
-  { id: '360_Days',  label: '🏗️ 1 Year',              bg: 'bg-purple-100',text: 'text-purple-800' },
-  { id: 'Completed', label: '✅ Completed',           bg: 'bg-gray-200',  text: 'text-gray-800' },
+  { id: 'Quick_Win', label: '⚡ Quick Wins (< 1 Wk)', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800' },
+  { id: '30_Days',   label: '📅 30 Days',             bg: 'bg-sky-50/50 dark:bg-sky-950/20',  text: 'text-sky-700 dark:text-sky-400', border: 'border-sky-200 dark:border-sky-800' },
+  { id: '90_Days',   label: '🗓️ 90 Days',             bg: 'bg-violet-50/50 dark:bg-violet-950/20',text: 'text-violet-700 dark:text-violet-400', border: 'border-violet-200 dark:border-violet-800' },
+  { id: '360_Days',  label: '🏗️ 1 Year',              bg: 'bg-purple-50/50 dark:bg-purple-950/20',text: 'text-purple-700 dark:text-purple-400', border: 'border-purple-200 dark:border-purple-800' },
+  { id: 'Completed', label: '✅ Completed',           bg: 'bg-slate-50 dark:bg-slate-900/50',  text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-200 dark:border-slate-700' },
 ];
 
 export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any[], onUpdate: any, isManager: boolean }) {
@@ -50,14 +50,14 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
         const colIdeas = ideas.filter(i => i.status === col.id);
 
         return (
-          <div key={col.id} 
+          <div key={col.id}
             onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, col.id)}
             // Mobile: 85vw width (so you see part of the next column). Desktop: 1/5 width.
-            className={`min-w-[85vw] md:min-w-[280px] md:w-1/5 rounded-xl ${col.bg} p-4 flex flex-col snap-center`}>
+            className={`min-w-[85vw] md:min-w-[280px] md:w-1/5 rounded-xl ${col.bg} ${col.border} border-2 p-4 flex flex-col snap-center backdrop-blur-sm`}>
             
             <h3 className={`font-bold ${col.text} mb-4 flex justify-between items-center`}>
               {col.label}
-              <span className="bg-white/50 px-2 py-1 rounded-full text-xs text-black">{colIdeas.length}</span>
+              <span className="bg-white/80 dark:bg-gray-800/80 px-2 py-1 rounded-full text-xs font-semibold shadow-sm">{colIdeas.length}</span>
             </h3>
 
             <div className="flex-1 overflow-y-auto space-y-3">
@@ -68,7 +68,7 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
 
                 return (
                     <div key={idea.id} draggable={isManager} onDragStart={(e) => handleDragStart(e, idea.id)}
-                    className={`${cardBg} ${cardBorder} p-4 rounded-lg shadow-sm border-gray-200 transition-all ${isManager ? 'hover:shadow-md cursor-grab active:cursor-grabbing' : 'cursor-default'}`}>
+                    className={`${cardBg} ${cardBorder} dark:bg-gray-800 dark:border-gray-700 p-4 rounded-lg shadow-sm transition-all ${isManager ? 'hover:shadow-lg cursor-grab active:cursor-grabbing' : 'cursor-default'}`}>
                     
                     <div className="flex justify-between items-start mb-2">
                         <span className="text-[10px] font-bold uppercase text-gray-400">{idea.category}</span>
@@ -77,7 +77,7 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
                         )}
                     </div>
                     
-                    <p className="font-bold text-gray-800 text-sm mb-3">{idea.title}</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-100 text-sm mb-3">{idea.title}</p>
                     
                     {col.id !== 'Completed' && (
                         <div className="mb-3">
