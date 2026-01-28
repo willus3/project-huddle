@@ -86,13 +86,6 @@ export default function Home() {
   useEffect(() => { fetchBranding(); }, []);
 
   useEffect(() => {
-    // Check system preference for dark mode on load
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        setIsDarkMode(true);
-    }
-  }, []);
-
-  useEffect(() => {
     if (currentUser) {
       fetchUsers();
       fetchCompanyStats();
