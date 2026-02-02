@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Huddle - Green Color Palette Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            50: '#f0fdf7',
+                            100: '#d1f5e3',
+                            200: '#a3ebc7',
+                            300: '#6dd9a3',
+                            400: '#45c085',
+                            500: '#32936F',
+                            600: '#2a7d5e',
+                            700: '#22674d',
+                            800: '#1a4f3a',
+                            900: '#123829',
+                            950: '#0a2419',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .color-swatch {
+            transition: transform 0.2s;
+        }
+        .color-swatch:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-primary-500 text-white py-8 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold mb-2">Project Huddle - Green Palette Preview</h1>
+            <p class="text-primary-100">Based on #32936F - Forest Green Theme</p>
+            <button onclick="toggleDarkMode()" class="mt-4 bg-white text-primary-700 px-4 py-2 rounded-lg hover:bg-primary-50 transition">
+                Toggle Dark Mode
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-12 space-y-12">
+
+        <!-- Primary Color Scale -->
+        <section>
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Primary Green Scale</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-11 gap-4">
+                <div class="color-swatch">
+                    <div class="bg-primary-50 h-24 rounded-lg shadow-md border border-gray-200"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">50</p>
+                    <p class="text-xs text-gray-500">#f0fdf7</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-100 h-24 rounded-lg shadow-md border border-gray-200"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">100</p>
+                    <p class="text-xs text-gray-500">#d1f5e3</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-200 h-24 rounded-lg shadow-md border border-gray-200"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">200</p>
+                    <p class="text-xs text-gray-500">#a3ebc7</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-300 h-24 rounded-lg shadow-md border border-gray-200"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">300</p>
+                    <p class="text-xs text-gray-500">#6dd9a3</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-400 h-24 rounded-lg shadow-md border border-gray-200"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">400</p>
+                    <p class="text-xs text-gray-500">#45c085</p>
+                </div>
+                <div class="color-swatch ring-4 ring-yellow-400">
+                    <div class="bg-primary-500 h-24 rounded-lg shadow-md"></div>
+                    <p class="text-sm font-medium text-gray-900 mt-2">500 ⭐</p>
+                    <p class="text-xs text-gray-500">#32936F</p>
+                    <p class="text-xs font-bold text-yellow-600">YOUR BASE</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-600 h-24 rounded-lg shadow-md"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">600</p>
+                    <p class="text-xs text-gray-500">#2a7d5e</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-700 h-24 rounded-lg shadow-md"></div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">700</p>
+                    <p class="text-xs text-gray-500">#22674d</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-800 h-24 rounded-lg shadow-md"></div>
+                    <p class="text-sm font-medium text-gray-300 mt-2">800</p>
+                    <p class="text-xs text-gray-400">#1a4f3a</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-900 h-24 rounded-lg shadow-md"></div>
+                    <p class="text-sm font-medium text-gray-300 mt-2">900</p>
+                    <p class="text-xs text-gray-400">#123829</p>
+                </div>
+                <div class="color-swatch">
+                    <div class="bg-primary-950 h-24 rounded-lg shadow-md"></div>
+                    <p class="text-sm font-medium text-gray-300 mt-2">950</p>
+                    <p class="text-xs text-gray-400">#0a2419</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Matrix Board Quadrants -->
+        <section>
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Matrix Board Quadrants</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Quick Wins -->
+                <div class="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold text-emerald-800 mb-2">🎯 Quick Wins</h3>
+                    <p class="text-sm text-emerald-700">High Impact, Low Effort</p>
+                    <div class="mt-4 flex gap-2">
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">Emerald</span>
+                        <span class="text-xs bg-white text-emerald-700 px-2 py-1 rounded border border-emerald-200">#10b981</span>
+                    </div>
+                </div>
+
+                <!-- Major Projects -->
+                <div class="bg-teal-50 border-2 border-teal-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold text-teal-800 mb-2">🚀 Major Projects</h3>
+                    <p class="text-sm text-teal-700">High Impact, High Effort</p>
+                    <div class="mt-4 flex gap-2">
+                        <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded">Teal</span>
+                        <span class="text-xs bg-white text-teal-700 px-2 py-1 rounded border border-teal-200">#14b8a6</span>
+                    </div>
+                </div>
+
+                <!-- Incremental -->
+                <div class="bg-amber-50 border-2 border-amber-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold text-amber-800 mb-2">💡 Incremental</h3>
+                    <p class="text-sm text-amber-700">Low Impact, Low Effort</p>
+                    <div class="mt-4 flex gap-2">
+                        <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Amber</span>
+                        <span class="text-xs bg-white text-amber-700 px-2 py-1 rounded border border-amber-200">#f59e0b</span>
+                    </div>
+                </div>
+
+                <!-- Thankless Tasks -->
+                <div class="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold text-orange-800 mb-2">⚠️ Thankless Tasks</h3>
+                    <p class="text-sm text-orange-700">Low Impact, High Effort</p>
+                    <div class="mt-4 flex gap-2">
+                        <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Orange</span>
+                        <span class="text-xs bg-white text-orange-700 px-2 py-1 rounded border border-orange-200">#f97316</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kanban Timeline -->
+        <section>
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Kanban Timeline Columns</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-emerald-500 rounded-full mb-3"></div>
+                    <h4 class="font-bold text-emerald-800">Quick Wins</h4>
+                    <p class="text-xs text-emerald-600 mt-1">Emerald-500</p>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-600 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-green-600 rounded-full mb-3"></div>
+                    <h4 class="font-bold text-green-800">30 Days</h4>
+                    <p class="text-xs text-green-600 mt-1">Green-600</p>
+                </div>
+                <div class="bg-teal-50 border-l-4 border-teal-600 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-teal-600 rounded-full mb-3"></div>
+                    <h4 class="font-bold text-teal-800">90 Days</h4>
+                    <p class="text-xs text-teal-600 mt-1">Teal-600</p>
+                </div>
+                <div class="bg-cyan-50 border-l-4 border-cyan-700 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-cyan-700 rounded-full mb-3"></div>
+                    <h4 class="font-bold text-cyan-800">1 Year</h4>
+                    <p class="text-xs text-cyan-600 mt-1">Cyan-700</p>
+                </div>
+                <div class="bg-slate-50 border-l-4 border-slate-400 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-slate-400 rounded-full mb-3"></div>
+                    <h4 class="font-bold text-slate-800">Completed</h4>
+                    <p class="text-xs text-slate-600 mt-1">Slate-400</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- UI Components -->
+        <section>
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">UI Components with Green Palette</h2>
+
+            <!-- Buttons -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Buttons</h3>
+                <div class="flex flex-wrap gap-4">
+                    <button class="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition shadow-md">
+                        Primary Button
+                    </button>
+                    <button class="bg-primary-100 text-primary-800 px-6 py-3 rounded-lg hover:bg-primary-200 transition">
+                        Secondary Button
+                    </button>
+                    <button class="border-2 border-primary-500 text-primary-700 px-6 py-3 rounded-lg hover:bg-primary-50 transition">
+                        Outline Button
+                    </button>
+                    <button class="bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition shadow-md">
+                        Success Button
+                    </button>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Badges & Tags</h3>
+                <div class="flex flex-wrap gap-3">
+                    <span class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
+                        On Target
+                    </span>
+                    <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
+                        ✓ Completed
+                    </span>
+                    <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+                        In Progress
+                    </span>
+                    <span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-medium">
+                        Safety
+                    </span>
+                    <span class="bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Quality
+                    </span>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Cards</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dashboard Card -->
+                    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-primary-500 hover:shadow-lg transition">
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Monthly Goal</h4>
+                        <p class="text-3xl font-bold text-primary-600">24/30</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-3">
+                            <div class="bg-primary-500 h-2 rounded-full" style="width: 80%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">80% Complete</p>
+                    </div>
+
+                    <!-- Team Performance Card -->
+                    <div class="bg-primary-600 text-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                        <h4 class="text-lg font-bold mb-2">Team Performance</h4>
+                        <p class="text-4xl font-bold">127</p>
+                        <p class="text-sm text-primary-100 mt-1">Total Ideas Submitted</p>
+                        <div class="mt-4 pt-4 border-t border-primary-400">
+                            <p class="text-sm">🥇 #1 in Company</p>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card -->
+                    <div class="bg-gradient-to-br from-primary-50 to-emerald-50 rounded-lg shadow-md p-6 border border-primary-200 hover:shadow-lg transition">
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">This Week</h4>
+                        <p class="text-3xl font-bold text-primary-700">12</p>
+                        <p class="text-sm text-gray-600 mt-1">New Submissions</p>
+                        <p class="text-xs text-emerald-600 mt-2">↑ 20% from last week</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Section Preview -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Admin Section</h3>
+                <div class="bg-emerald-50 border-2 border-emerald-300 rounded-lg p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-xl">
+                            👤
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-emerald-900">Manager Dashboard</h4>
+                            <p class="text-sm text-emerald-700">Access team settings and analytics</p>
+                        </div>
+                    </div>
+                    <button class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition">
+                        Manage Team
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dark Mode Preview -->
+        <section id="dark-preview" class="hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">Dark Mode Preview</h2>
+            <div class="bg-gray-800 rounded-lg p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Dark Mode Card 1 -->
+                    <div class="bg-gray-700 rounded-lg p-6 border border-primary-500">
+                        <h3 class="text-xl font-bold text-white mb-3">Team Progress</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-300">Monthly Goal</span>
+                                <span class="text-primary-400 font-bold">18/25</span>
+                            </div>
+                            <div class="w-full bg-gray-600 rounded-full h-2">
+                                <div class="bg-primary-500 h-2 rounded-full" style="width: 72%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <span class="bg-primary-900 text-primary-100 px-3 py-1 rounded text-sm">On Track</span>
+                        </div>
+                    </div>
+
+                    <!-- Dark Mode Card 2 -->
+                    <div class="bg-primary-900 rounded-lg p-6 border border-primary-700">
+                        <h3 class="text-xl font-bold text-primary-100 mb-3">Quick Stats</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-2xl font-bold text-white">42</p>
+                                <p class="text-xs text-primary-300">Active Ideas</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-white">8</p>
+                                <p class="text-xs text-primary-300">Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dark Mode Buttons -->
+                <div class="flex flex-wrap gap-4">
+                    <button class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-500 transition">
+                        Primary (Dark)
+                    </button>
+                    <button class="bg-primary-800 text-primary-100 px-6 py-3 rounded-lg hover:bg-primary-700 transition">
+                        Secondary (Dark)
+                    </button>
+                    <button class="border-2 border-primary-500 text-primary-400 px-6 py-3 rounded-lg hover:bg-primary-950 transition">
+                        Outline (Dark)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Semantic Colors -->
+        <section>
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Semantic Colors</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-primary-50 border-l-4 border-primary-500 rounded-lg p-4">
+                    <p class="text-sm font-medium text-primary-800 mb-2">Success</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-primary-500 rounded"></div>
+                        <span class="text-xs text-gray-600">Primary-500</span>
+                    </div>
+                </div>
+                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-4">
+                    <p class="text-sm font-medium text-amber-800 mb-2">Warning</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-amber-500 rounded"></div>
+                        <span class="text-xs text-gray-600">Amber-500</span>
+                    </div>
+                </div>
+                <div class="bg-rose-50 border-l-4 border-rose-500 rounded-lg p-4">
+                    <p class="text-sm font-medium text-rose-800 mb-2">Error</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-rose-500 rounded"></div>
+                        <span class="text-xs text-gray-600">Rose-500</span>
+                    </div>
+                </div>
+                <div class="bg-teal-50 border-l-4 border-teal-500 rounded-lg p-4">
+                    <p class="text-sm font-medium text-teal-800 mb-2">Info</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-teal-500 rounded"></div>
+                        <span class="text-xs text-gray-600">Teal-500</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('bg-gray-900');
+            document.body.classList.toggle('bg-gray-50');
+            document.getElementById('dark-preview').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

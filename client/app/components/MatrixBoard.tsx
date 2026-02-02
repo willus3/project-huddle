@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 
 const QUADRANTS = [
-  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-teal-50 dark:bg-teal-950', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300' },
-  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-cyan-50 dark:bg-cyan-950', border: 'border-cyan-200 dark:border-cyan-800', text: 'text-cyan-700 dark:text-cyan-300' },
+  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-emerald-50 dark:bg-emerald-950', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-300' },
+  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-teal-50 dark:bg-teal-950', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300' },
   { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-amber-50 dark:bg-amber-950', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300' },
-  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-rose-50 dark:bg-rose-950', border: 'border-rose-200 dark:border-rose-800', text: 'text-rose-700 dark:text-rose-300' },
+  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-orange-50 dark:bg-orange-950', border: 'border-orange-200 dark:border-orange-800', text: 'text-orange-700 dark:text-orange-300' },
 ];
 
 export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManager }: { ideas: any[], users: any[], onUpdate: any, onPromote: any, isManager: boolean }) {
@@ -81,10 +81,10 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
                             {users.map(u => (<option key={u.id} value={u.id}>👤 {u.full_name}</option>))}
                           </select>
                           <div className="flex flex-wrap gap-1 justify-between">
-                            <button onClick={() => handlePromoteClick(idea.id, 'Quick_Win')} className="text-[10px] bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 px-2 py-1 rounded hover:bg-teal-200 dark:hover:bg-teal-800 flex-1 font-medium shadow-sm">⚡ Win</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '30_Days')} className="text-[10px] bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 px-2 py-1 rounded hover:bg-cyan-200 dark:hover:bg-cyan-800 flex-1 font-medium shadow-sm">📅 30d</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '90_Days')} className="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-2 py-1 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800 flex-1 font-medium shadow-sm">🗓️ 90d</button>
-                            <button onClick={() => handlePromoteClick(idea.id, '360_Days')} className="text-[10px] bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded hover:bg-purple-200 dark:hover:bg-purple-800 flex-1 font-medium shadow-sm">🏗️ 1y</button>
+                            <button onClick={() => handlePromoteClick(idea.id, 'Quick_Win')} className="text-[10px] bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 px-2 py-1 rounded hover:bg-emerald-200 dark:hover:bg-emerald-800 flex-1 font-medium shadow-sm">⚡ Win</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '30_Days')} className="text-[10px] bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded hover:bg-green-200 dark:hover:bg-green-800 flex-1 font-medium shadow-sm">📅 30d</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '90_Days')} className="text-[10px] bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 px-2 py-1 rounded hover:bg-teal-200 dark:hover:bg-teal-800 flex-1 font-medium shadow-sm">🗓️ 90d</button>
+                            <button onClick={() => handlePromoteClick(idea.id, '360_Days')} className="text-[10px] bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 px-2 py-1 rounded hover:bg-cyan-200 dark:hover:bg-cyan-800 flex-1 font-medium shadow-sm">🏗️ 1y</button>
                           </div>
                         </div>
                       </div>

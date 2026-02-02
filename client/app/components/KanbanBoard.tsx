@@ -2,10 +2,10 @@
 import React from 'react';
 
 const COLUMNS = [
-  { id: 'Quick_Win', label: '⚡ Quick Wins (< 1 Wk)', bg: 'bg-teal-50 dark:bg-teal-950', text: 'text-teal-700 dark:text-teal-300', border: 'border-teal-200 dark:border-teal-800' },
-  { id: '30_Days',   label: '📅 30 Days',             bg: 'bg-cyan-50 dark:bg-cyan-950',  text: 'text-cyan-700 dark:text-cyan-300', border: 'border-cyan-200 dark:border-cyan-800' },
-  { id: '90_Days',   label: '🗓️ 90 Days',             bg: 'bg-indigo-50 dark:bg-indigo-950',text: 'text-indigo-700 dark:text-indigo-300', border: 'border-indigo-200 dark:border-indigo-800' },
-  { id: '360_Days',  label: '🏗️ 1 Year',              bg: 'bg-purple-50 dark:bg-purple-950',text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-800' },
+  { id: 'Quick_Win', label: '⚡ Quick Wins (< 1 Wk)', bg: 'bg-emerald-50 dark:bg-emerald-950', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-800' },
+  { id: '30_Days',   label: '📅 30 Days',             bg: 'bg-green-50 dark:bg-green-950',  text: 'text-green-700 dark:text-green-300', border: 'border-green-200 dark:border-green-800' },
+  { id: '90_Days',   label: '🗓️ 90 Days',             bg: 'bg-teal-50 dark:bg-teal-950',text: 'text-teal-700 dark:text-teal-300', border: 'border-teal-200 dark:border-teal-800' },
+  { id: '360_Days',  label: '🏗️ 1 Year',              bg: 'bg-cyan-50 dark:bg-cyan-950',text: 'text-cyan-700 dark:text-cyan-300', border: 'border-cyan-200 dark:border-cyan-800' },
   { id: 'Completed', label: '✅ Completed',           bg: 'bg-slate-50 dark:bg-slate-900',  text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-200 dark:border-slate-700' },
 ];
 
