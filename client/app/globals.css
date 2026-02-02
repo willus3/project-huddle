@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@variant dark (&:is(.dark *));
-
 body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
