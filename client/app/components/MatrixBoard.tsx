@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 
 const QUADRANTS = [
-  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-emerald-50 dark:bg-emerald-950', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-300' },
-  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-teal-50 dark:bg-teal-950', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300' },
-  { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-amber-50 dark:bg-amber-950', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300' },
-  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-orange-50 dark:bg-orange-950', border: 'border-orange-200 dark:border-orange-800', text: 'text-orange-700 dark:text-orange-300' },
+  { id: 'q1', label: '💎 Quick Wins (High Impact, Low Effort)', bg: 'bg-emerald-50 dark:bg-emerald-950', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-300', impact: 'High', effort: 'Low' },
+  { id: 'q2', label: '🏆 Major Projects (High Impact, High Effort)', bg: 'bg-teal-50 dark:bg-teal-950', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300', impact: 'High', effort: 'High' },
+  { id: 'q3', label: '🔧 Incremental (Low Impact, Low Effort)', bg: 'bg-amber-50 dark:bg-amber-950', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300', impact: 'Low', effort: 'Low' },
+  { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-orange-50 dark:bg-orange-950', border: 'border-orange-200 dark:border-orange-800', text: 'text-orange-700 dark:text-orange-300', impact: 'Low', effort: 'High' },
 ];
 
 export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManager }: { ideas: any[], users: any[], onUpdate: any, onPromote: any, isManager: boolean }) {
