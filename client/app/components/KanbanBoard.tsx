@@ -9,7 +9,8 @@ const COLUMNS = [
   { id: 'Completed', label: '✅ Completed', bg: 'bg-gray-50 dark:bg-gray-900', text: 'text-gray-600 dark:text-gray-400', border: 'border-gray-200 dark:border-gray-700' },
 ];
 
-export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any[], onUpdate: any, isManager: boolean }) {
+export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick }: { ideas: any[], onUpdate: any, isManager: boolean, onIdeaClick: (idea: any) => void }) {
+
 
   const handleDragStart = (e: React.DragEvent, id: number) => {
     if (!isManager) return;
@@ -67,8 +68,8 @@ export default function KanbanBoard({ ideas, onUpdate, isManager }: { ideas: any
                 const cardBg = overdue ? 'bg-red-50' : 'bg-white';
 
                 return (
-                  <div key={idea.id} draggable={isManager} onDragStart={(e) => handleDragStart(e, idea.id)}
-                    className={`${cardBg} ${cardBorder} dark:bg-gray-800 dark:border-gray-700 p-4 rounded-lg shadow-sm transition-all ${isManager ? 'hover:shadow-lg cursor-grab active:cursor-grabbing' : 'cursor-default'}`}>
+                  <div key={idea.id} draggable={isManager} onDragStart={(e) => handleDragStart(e, idea.id)} onClick={() => onIdeaClick(idea)}
+                    className={`${cardBg} ${cardBorder} dark:bg-gray-800 dark:border-gray-700 p-4 rounded-lg shadow-sm transition-all cursor-pointer hover:shadow-lg ${isManager ? 'active:cursor-grabbing' : ''}`}>
 
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-[10px] font-bold uppercase text-gray-400">{idea.category}</span>

@@ -8,7 +8,7 @@ const QUADRANTS = [
   { id: 'q4', label: '🗑️ Thankless Tasks (Low Impact, High Effort)', bg: 'bg-gray-100 dark:bg-gray-900', border: 'border-gray-200 dark:border-gray-700', text: 'text-gray-500 dark:text-gray-500', impact: 'Low', effort: 'High' },
 ];
 
-export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManager }: { ideas: any[], users: any[], onUpdate: any, onPromote: any, isManager: boolean }) {
+export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManager, onIdeaClick }: { ideas: any[], users: any[], onUpdate: any, onPromote: any, isManager: boolean, onIdeaClick: (idea: any) => void }) {
   const inboxIdeas = ideas.filter(i => i.status === 'New');
   const matrixIdeas = ideas.filter(i => i.status === 'Triaged');
   const [selections, setSelections] = useState<{ [key: number]: string }>({});
@@ -48,7 +48,8 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
             <div key={idea.id}
               draggable={isManager}
               onDragStart={(e) => handleDragStart(e, idea.id)}
-              className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition ${isManager ? 'cursor-move hover:shadow-lg active:cursor-grabbing' : 'cursor-default opacity-90'}`}>
+              onClick={() => onIdeaClick(idea)}
+              className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition ${isManager ? 'cursor-move hover:shadow-lg active:cursor-grabbing' : 'cursor-pointer hover:shadow-md'}`}>
               <p className="font-semibold text-gray-800 dark:text-gray-100">{idea.title}</p>
               {isManager && <p className="text-xs text-gray-400 mt-2">Drag to Matrix 👉</p>}
             </div>
@@ -67,7 +68,8 @@ export default function MatrixBoard({ ideas, users, onUpdate, onPromote, isManag
               <h3 className={`font-bold ${quad.text} text-sm uppercase mb-3`}>{quad.label}</h3>
               <div className="space-y-2 max-h-[200px] overflow-y-auto">
                 {quadIdeas.map((idea) => (
-                  <div key={idea.id} className="bg-white/95 dark:bg-gray-800/95 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 group hover:shadow-lg transition-all">
+                  <div key={idea.id} onClick={() => onIdeaClick(idea)} className="bg-white/95 dark:bg-gray-800/95 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 group hover:shadow-lg transition-all cursor-pointer">
+
                     <p className="font-bold text-gray-800 dark:text-gray-100 text-sm">{idea.title}</p>
                     <p className="text-xs text-gray-500 mb-2">{idea.category}</p>
 
