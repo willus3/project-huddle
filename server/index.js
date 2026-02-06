@@ -12,13 +12,13 @@ app.use(express.json());
 // ==========================================
 app.post('/ideas', async (req, res) => {
     try {
-        const { 
+        const {
             title, category, impact, effort, timeline, submitter_id,
-            problem_statement, proposed_solution, expected_benefit 
+            problem_statement, proposed_solution, expected_benefit
         } = req.body;
 
-        const finalTimeline = timeline || 'New'; 
-        const finalSubmitter = submitter_id || 1; 
+        const finalTimeline = timeline || 'New';
+        const finalSubmitter = submitter_id || 1;
 
         const newIdea = await pool.query(
             `INSERT INTO ideas (
@@ -54,7 +54,7 @@ app.get('/ideas', async (req, res) => {
             LEFT JOIN users u ON i.submitter_id = u.id
             LEFT JOIN teams t ON u.team_id = t.id
         `;
-        
+
         const queryParams = [];
 
         // Apply Filter if teamId is present and not 'all'
@@ -81,7 +81,7 @@ app.put('/ideas/:id', async (req, res) => {
     try {
         const { id } = req.params;
         // Added next_review_date to the destructured body
-        const { status, impact, effort, user_id, next_review_date } = req.body;
+        const { status, impact, effort, user_id, next_review_date, is_archived } = req.body;
 
         const updateQuery = `
             UPDATE ideas 
@@ -90,13 +90,14 @@ app.put('/ideas/:id', async (req, res) => {
                 impact = COALESCE($2, impact),
                 effort = COALESCE($3, effort),
                 assignee_id = COALESCE($4, assignee_id),
-                next_review_date = COALESCE($5, next_review_date)
-            WHERE id = $6 
+                next_review_date = COALESCE($5, next_review_date),
+                is_archived = COALESCE($6, is_archived)
+            WHERE id = $7 
             RETURNING *
         `;
 
         // Note: We added next_review_date as the 5th parameter, id is now 6th
-        const updatedIdea = await pool.query(updateQuery, [status, impact, effort, user_id, next_review_date, id]);
+        const updatedIdea = await pool.query(updateQuery, [status, impact, effort, user_id, next_review_date, is_archived, id]);
 
         if (updatedIdea.rows.length === 0) {
             return res.status(404).json({ message: "Idea not found" });
@@ -115,7 +116,7 @@ app.put('/ideas/:id', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
 
         if (user.rows.length === 0) {
@@ -127,8 +128,8 @@ app.post('/login', async (req, res) => {
         }
 
         const validUser = user.rows[0];
-        delete validUser.password_hash; 
-        
+        delete validUser.password_hash;
+
         res.json(validUser);
     } catch (err) {
         console.error(err.message);
@@ -164,7 +165,7 @@ app.get('/stats/company', async (req, res) => {
             FROM teams t
             ORDER BY t.name ASC;
         `;
-        
+
         const companyStats = await pool.query(query);
         res.json(companyStats.rows);
     } catch (err) {
@@ -269,7 +270,7 @@ app.post('/teams', async (req, res) => {
 app.post('/users', async (req, res) => {
     try {
         const { full_name, email, password, role, team_id, monthly_goal } = req.body;
-        
+
         // Default goal to 5 if not provided
         const goal = monthly_goal || 5;
 
@@ -279,7 +280,7 @@ app.post('/users', async (req, res) => {
              RETURNING id, full_name, email, role, team_id`,
             [full_name, email, password, role, team_id, goal]
         );
-        
+
         res.json(newUser.rows[0]);
     } catch (err) {
         console.error(err.message);
@@ -294,7 +295,7 @@ app.put('/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { full_name, email, role, team_id, monthly_goal } = req.body;
-        
+
         await pool.query(
             `UPDATE users SET full_name = $1, email = $2, role = $3, team_id = $4, monthly_goal = $5 
              WHERE id = $6`,
@@ -314,7 +315,7 @@ app.put('/teams/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { name, monthly_goal } = req.body;
-        
+
         await pool.query(
             "UPDATE teams SET name = $1, monthly_goal = $2 WHERE id = $3",
             [name, monthly_goal, id]
@@ -346,7 +347,7 @@ app.get('/settings/branding', async (req, res) => {
 app.put('/settings/branding', async (req, res) => {
     try {
         const { name, logo_url, primary_color } = req.body;
-        
+
         // Update ID 1
         const update = await pool.query(
             "UPDATE organizations SET name = $1, logo_url = $2, primary_color = $3 WHERE id = 1 RETURNING *",

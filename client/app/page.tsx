@@ -21,6 +21,7 @@ export default function Home() {
   const [users, setUsers] = useState<any[]>([]);
   const [ideas, setIdeas] = useState<any[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<any>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
 
   // BRANDING STATE
@@ -354,7 +355,59 @@ export default function Home() {
             </div>
           </div>
         )}
-        {activeTab === "huddle" && (<div><div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-6 rounded-xl shadow-md mb-8"><div className="flex justify-between items-start mb-4"><div><h2 className="text-2xl font-bold">Team Performance</h2><p className="text-gray-400 text-sm">Target vs. Actual Submissions</p></div>{currentUser.role === 'manager' && (<div className="flex gap-4"><select value={selectedTeamFilter} onChange={(e) => setSelectedTeamFilter(e.target.value)} className="bg-gray-700 text-white border border-gray-600 px-3 py-1 rounded text-xs font-bold outline-none"><option value="all">👁️ View All Teams</option>{companyStats.map(team => (<option key={team.id} value={team.id}>{team.name}</option>))}</select>{selectedTeamFilter !== 'all' && (<button onClick={() => setShowSettings(!showSettings)} className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs font-bold border border-gray-600">⚙️ Set Goals</button>)}</div>)}</div>{showSettings && (<div className="bg-gray-800 p-4 rounded mb-4 border border-gray-700 animate-in fade-in slide-in-from-top-2"><label className="block text-xs font-bold text-gray-400 uppercase mb-2">Update Team Monthly Goal</label><div className="flex gap-2"><input type="number" style={{ color: '#ffffff', colorScheme: 'dark' }} className="bg-gray-700 border border-gray-500 px-3 py-1 rounded w-24 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg" value={newGoal} onChange={e => setNewGoal(parseInt(e.target.value))} /><button onClick={handleUpdateGoal} className="bg-blue-600 text-white px-4 py-1 rounded text-sm font-bold hover:bg-blue-500">Save</button></div></div>)}{teamStats ? (<div className="flex gap-8 items-center mt-6"><div className="flex-1"><div className="flex justify-between text-sm font-bold mb-2"><span>{teamStats.team?.name || "Loading..."}</span><span className="text-gray-400">Goal: {teamStats.team?.monthly_goal || 0}</span></div><div className="w-full bg-gray-700 rounded-full h-6 relative overflow-hidden"><div className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`} style={{ width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%` }}></div></div></div>{selectedTeamFilter !== 'all' && (<div className="w-1/3 border-l border-gray-700 pl-8"><h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3><div className="space-y-2">{teamStats.users?.map((u: any, idx: number) => (<div key={idx} className="flex justify-between text-sm"><span>{u.full_name}</span><span className={u.actual >= u.monthly_goal ? "text-blue-400 font-bold" : "text-gray-400"}>{u.actual} / {u.monthly_goal}</span></div>))}</div></div>)}</div>) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}</div><MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} /><hr className="my-12 border-gray-200 dark:border-gray-700" /><h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Execution Tracking</h2><KanbanBoard ideas={ideas} onUpdate={updateIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} /></div>)}
+        {activeTab === "huddle" && (<div><div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-6 rounded-xl shadow-md mb-8"><div className="flex justify-between items-start mb-4"><div><h2 className="text-2xl font-bold">Team Performance</h2><p className="text-gray-400 text-sm">Target vs. Actual Submissions</p></div>{currentUser.role === 'manager' && (<div className="flex gap-4"><select value={selectedTeamFilter} onChange={(e) => setSelectedTeamFilter(e.target.value)} className="bg-gray-700 text-white border border-gray-600 px-3 py-1 rounded text-xs font-bold outline-none"><option value="all">👁️ View All Teams</option>{companyStats.map(team => (<option key={team.id} value={team.id}>{team.name}</option>))}</select>{selectedTeamFilter !== 'all' && (<button onClick={() => setShowSettings(!showSettings)} className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs font-bold border border-gray-600">⚙️ Set Goals</button>)}</div>)}</div>{showSettings && (<div className="bg-gray-800 p-4 rounded mb-4 border border-gray-700 animate-in fade-in slide-in-from-top-2"><label className="block text-xs font-bold text-gray-400 uppercase mb-2">Update Team Monthly Goal</label><div className="flex gap-2"><input type="number" style={{ color: '#ffffff', colorScheme: 'dark' }} className="bg-gray-700 border border-gray-500 px-3 py-1 rounded w-24 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg" value={newGoal} onChange={e => setNewGoal(parseInt(e.target.value))} /><button onClick={handleUpdateGoal} className="bg-blue-600 text-white px-4 py-1 rounded text-sm font-bold hover:bg-blue-500">Save</button></div></div>)}{teamStats ? (<div className="flex gap-8 items-center mt-6"><div className="flex-1"><div className="flex justify-between text-sm font-bold mb-2"><span>{teamStats.team?.name || "Loading..."}</span><span className="text-gray-400">Goal: {teamStats.team?.monthly_goal || 0}</span></div><div className="w-full bg-gray-700 rounded-full h-6 relative overflow-hidden"><div className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`} style={{ width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%` }}></div></div></div>{selectedTeamFilter !== 'all' && (<div className="w-1/3 border-l border-gray-700 pl-8"><h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3><div className="space-y-2">{teamStats.users?.map((u: any, idx: number) => (<div key={idx} className="flex justify-between text-sm"><span>{u.full_name}</span><span className={u.actual >= u.monthly_goal ? "text-blue-400 font-bold" : "text-gray-400"}>{u.actual} / {u.monthly_goal}</span></div>))}</div></div>)}</div>) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}</div><MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} /><hr className="my-12 border-gray-200 dark:border-gray-700" /><h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Execution Tracking</h2><KanbanBoard ideas={ideas.filter(i => !i.is_archived)} onUpdate={updateIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} />
+
+          {/* --- RECENT COMPLETIONS & ARCHIVE --- */}
+          <div className="mt-12">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">✅ Recent Completions</h2>
+              <button
+                onClick={() => setShowArchived(!showArchived)}
+                className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-lg transition"
+              >
+                {showArchived ? 'Hide Archived' : 'Show Archived Ideas'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ideas.filter(i => i.status === 'Completed' && (showArchived ? true : !i.is_archived)).map(idea => (
+                <div key={idea.id} className={`relative p-6 rounded-xl border-2 transition-all ${idea.is_archived ? 'bg-gray-100 dark:bg-gray-900 border-gray-200 dark:border-gray-800 opacity-75' : 'bg-white dark:bg-gray-800 border-green-100 dark:border-green-900 shadow-sm hover:shadow-md'}`}>
+
+                  <div className="flex justify-between items-start mb-4">
+                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${idea.is_archived ? 'bg-gray-200 text-gray-500' : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'}`}>
+                      {idea.is_archived ? 'Archived' : 'Completed'}
+                    </span>
+                    {currentUser.role === 'manager' && !idea.is_archived && (
+                      <button
+                        onClick={() => updateIdea(idea.id.toString(), { is_archived: true })}
+                        className="text-xs font-bold text-gray-400 hover:text-red-500 flex items-center gap-1 border border-gray-200 dark:border-gray-700 px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                        title="Archive this idea"
+                      >
+                        Archive 📦
+                      </button>
+                    )}
+                  </div>
+
+                  <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-2 truncate" title={idea.title}>{idea.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">{idea.expected_benefit}</p>
+
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="text-xs text-gray-400">
+                      {idea.full_name && <span>👤 {idea.full_name}</span>}
+                    </div>
+                    <button onClick={() => setSelectedIdea(idea)} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">View Details</button>
+                  </div>
+                </div>
+              ))}
+              {ideas.filter(i => i.status === 'Completed' && !i.is_archived).length === 0 && !showArchived && (
+                <div className="col-span-full text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">No recently completed items.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        )}
 
 
         {activeTab === "company" && (<div><div className="mb-8 text-center"><h2 className="text-3xl font-bold text-gray-900 dark:text-white">Company Leaderboard 🏆</h2><p className="text-gray-500 dark:text-gray-400">Monthly Performance by Team</p></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{companyStats.map((team, index) => (<div key={team.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow"><div className={`p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center ${index === 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-white dark:bg-gray-800'}`}><h3 className="font-bold text-lg text-gray-800 dark:text-white">{index === 0 && '🥇 '} {index === 1 && '🥈 '} {index === 2 && '🥉 '}{team.name}</h3>{parseInt(team.submissions) >= team.monthly_goal && <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">On Target</span>}</div><div className="p-6 space-y-6"><div><div className="flex justify-between text-sm mb-1"><span className="text-gray-500 dark:text-gray-400 font-bold">New Ideas</span><span className="font-bold text-gray-900 dark:text-white">{team.submissions} <span className="text-gray-400 text-xs">/ {team.monthly_goal}</span></span></div><div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3"><div className={`h-3 rounded-full ${parseInt(team.submissions) >= team.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`} style={{ width: `${Math.min(100, (team.submissions / team.monthly_goal) * 100)}%` }}></div></div></div><div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex justify-between items-center"><div><p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Completed</p><p className="text-2xl font-black text-gray-800 dark:text-white">{team.completions}</p></div><div className="text-3xl">✅</div></div></div></div>))}</div></div>)}

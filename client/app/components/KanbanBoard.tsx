@@ -6,7 +6,7 @@ const COLUMNS = [
   { id: '30_Days', label: '📅 30 Days', bg: 'bg-indigo-50 dark:bg-indigo-950', text: 'text-indigo-700 dark:text-indigo-300', border: 'border-indigo-200 dark:border-indigo-800' },
   { id: '90_Days', label: '🗓️ 90 Days', bg: 'bg-violet-50 dark:bg-violet-950', text: 'text-violet-700 dark:text-violet-300', border: 'border-violet-200 dark:border-violet-800' },
   { id: '360_Days', label: '🏗️ 1 Year', bg: 'bg-slate-50 dark:bg-slate-950', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200 dark:border-slate-800' },
-  { id: 'Completed', label: '✅ Completed', bg: 'bg-gray-50 dark:bg-gray-900', text: 'text-gray-600 dark:text-gray-400', border: 'border-gray-200 dark:border-gray-700' },
+  { id: '360_Days', label: '🏗️ 1 Year', bg: 'bg-slate-50 dark:bg-slate-950', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200 dark:border-slate-800' },
 ];
 
 export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick }: { ideas: any[], onUpdate: any, isManager: boolean, onIdeaClick: (idea: any) => void }) {
@@ -54,7 +54,7 @@ export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick }:
           <div key={col.id}
             onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, col.id)}
             // Mobile: 85vw width (so you see part of the next column). Desktop: 1/5 width.
-            className={`min-w-[85vw] md:min-w-[280px] md:w-1/5 rounded-xl ${col.bg} ${col.border} border-2 p-4 flex flex-col snap-center`}>
+            className={`min-w-[85vw] md:min-w-[250px] md:w-1/4 rounded-xl ${col.bg} ${col.border} border-2 p-4 flex flex-col snap-center`}>
 
             <h3 className={`font-bold ${col.text} mb-4 flex justify-between items-center`}>
               {col.label}
