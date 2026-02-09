@@ -67,7 +67,7 @@ CREATE TABLE a3_worksheets (
     target_condition TEXT,
     root_cause_analysis JSONB, -- Stores 5-Whys and Fishbone data structure
     countermeasures TEXT, -- Detailed text description of experiments
-    implementation_plan JSONB, -- Gantt chart data
+    implementation_plan TEXT, -- Gantt chart data (Stored as JSON string)
     effect_confirmation TEXT,
     standardization TEXT,
     status VARCHAR(50) DEFAULT 'Draft', -- Draft, In Progress, Review, Closed
