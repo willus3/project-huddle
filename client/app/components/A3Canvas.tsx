@@ -1,5 +1,4 @@
 "use client";
-// Force Vercel Rebuild
 import React, { useState, useEffect } from 'react';
 
 interface A3CanvasProps {
