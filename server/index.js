@@ -360,7 +360,84 @@ app.put('/settings/branding', async (req, res) => {
     }
 });
 
-// NEW:
+
+// ==========================================
+// A3 WORKSHEET ROUTES (PRO TIER)
+// ==========================================
+
+// GET A3 by Idea ID
+app.get('/a3/:idea_id', async (req, res) => {
+    try {
+        const { idea_id } = req.params;
+        const a3 = await pool.query("SELECT * FROM a3_worksheets WHERE idea_id = $1", [idea_id]);
+
+        if (a3.rows.length === 0) {
+            return res.status(404).json(null); // Not found is okay, means we haven't started one yet
+        }
+        res.json(a3.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// CREATE A3 (Initialize)
+app.post('/a3', async (req, res) => {
+    try {
+        const { idea_id, background } = req.body;
+
+        // Check if exists first
+        const check = await pool.query("SELECT * FROM a3_worksheets WHERE idea_id = $1", [idea_id]);
+        if (check.rows.length > 0) {
+            return res.json(check.rows[0]); // Return existing if someone double-clicked
+        }
+
+        const newA3 = await pool.query(
+            "INSERT INTO a3_worksheets (idea_id, background) VALUES ($1, $2) RETURNING *",
+            [idea_id, background]
+        );
+        res.json(newA3.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// UPDATE A3
+app.put('/a3/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            background, current_condition, target_condition,
+            root_cause_analysis, countermeasures, implementation_plan,
+            effect_confirmation, standardization, status
+        } = req.body;
+
+        const updatedA3 = await pool.query(
+            `UPDATE a3_worksheets SET 
+                background = COALESCE($1, background),
+                current_condition = COALESCE($2, current_condition),
+                target_condition = COALESCE($3, target_condition),
+                root_cause_analysis = COALESCE($4, root_cause_analysis),
+                countermeasures = COALESCE($5, countermeasures),
+                implementation_plan = COALESCE($6, implementation_plan),
+                effect_confirmation = COALESCE($7, effect_confirmation),
+                standardization = COALESCE($8, standardization),
+                status = COALESCE($9, status),
+                updated_at = CURRENT_TIMESTAMP
+             WHERE id = $10 
+             RETURNING *`,
+            [background, current_condition, target_condition, root_cause_analysis,
+                countermeasures, implementation_plan, effect_confirmation, standardization, status, id]
+        );
+
+        res.json(updatedA3.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

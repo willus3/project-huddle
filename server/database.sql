@@ -57,3 +57,20 @@ VALUES (1, 'demo@acme.com', 'hashed_secret', 'Demo User', 'manager');
 
 INSERT INTO boards (organization_id, name, description) 
 VALUES (1, 'Main Assembly Huddle', 'Daily operational review');
+
+-- 7. A3 Worksheets (Pro Tier Feature)
+CREATE TABLE a3_worksheets (
+    id SERIAL PRIMARY KEY,
+    idea_id INTEGER REFERENCES ideas(id) UNIQUE, -- One A3 per Idea
+    background TEXT,
+    current_condition TEXT, -- Supports images via URL in JSON or Markdown if needed
+    target_condition TEXT,
+    root_cause_analysis JSONB, -- Stores 5-Whys and Fishbone data structure
+    countermeasures JSONB, -- Array of planned experiments
+    implementation_plan JSONB, -- Gantt chart data
+    effect_confirmation TEXT,
+    standardization TEXT,
+    status VARCHAR(50) DEFAULT 'Draft', -- Draft, In Progress, Review, Closed
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
