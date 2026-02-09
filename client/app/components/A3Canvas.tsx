@@ -7,10 +7,17 @@ interface A3CanvasProps {
     isOpen: boolean;
 }
 
+interface TaskItem {
+    id: number;
+    task: string;
+    owner: string;
+    dueDate: string;
+    status: 'Pending' | 'In Progress' | 'Done';
+}
+
 export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
     const [a3Data, setA3Data] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('plan'); // 'plan' (Left) or 'do' (Right) for Mobile, both for Desktop?
 
     // Form States
     const [formData, setFormData] = useState({
@@ -18,8 +25,8 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
         current_condition: "",
         target_condition: "",
         root_cause_analysis: { five_whys: ["", "", "", "", ""], fishbone: {} },
-        countermeasures: [],
-        implementation_plan: [],
+        countermeasures: "", // Fixed: Initialize as string
+        implementation_plan: [] as TaskItem[], // Fixed: Typed array
         effect_confirmation: "",
         standardization: "",
         status: "Draft"
@@ -43,22 +50,22 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
                     setA3Data(data);
                     // Merge DB data with form defaults
                     setFormData({
-                        background: data.background || idea.problem_statement || "", // Inherit if empty
+                        background: data.background || idea.problem_statement || "",
                         current_condition: data.current_condition || "",
                         target_condition: data.target_condition || "",
                         root_cause_analysis: data.root_cause_analysis || { five_whys: ["", "", "", "", ""], fishbone: {} },
-                        countermeasures: data.countermeasures || [],
-                        implementation_plan: data.implementation_plan || [],
+                        // FIX: handle JSON parsing or legacy string data safely
+                        countermeasures: typeof data.countermeasures === 'string' ? data.countermeasures : "",
+                        implementation_plan: Array.isArray(data.implementation_plan) ? data.implementation_plan : [],
                         effect_confirmation: data.effect_confirmation || "",
                         standardization: data.standardization || "",
                         status: data.status || "Draft"
                     });
                 } else {
                     // Initialize New
-                    setFormData(prev => ({ ...prev, background: idea.problem_statement })); // Inherit context
+                    setFormData(prev => ({ ...prev, background: idea.problem_statement }));
                 }
             } else {
-                // Not found, user will create on save
                 setFormData(prev => ({ ...prev, background: idea.problem_statement }));
             }
         } catch (err) {
@@ -70,7 +77,6 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
 
     const handleSave = async () => {
         try {
-            // Check if we need to create or update
             const method = a3Data ? "PUT" : "POST";
             const url = a3Data ? `${API_BASE_URL}/a3/${a3Data.id}` : `${API_BASE_URL}/a3`;
             const body = a3Data ? formData : { idea_id: idea.id, ...formData };
@@ -90,6 +96,21 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
             console.error("Save failed", err);
             alert("Error saving A3");
         }
+    };
+
+    // Task List Helpers
+    const addTask = () => {
+        const newTask: TaskItem = { id: Date.now(), task: "", owner: "", dueDate: "", status: 'Pending' };
+        setFormData({ ...formData, implementation_plan: [...formData.implementation_plan, newTask] });
+    };
+
+    const updateTask = (id: number, field: keyof TaskItem, value: any) => {
+        const updated = formData.implementation_plan.map(t => t.id === id ? { ...t, [field]: value } : t);
+        setFormData({ ...formData, implementation_plan: updated });
+    };
+
+    const removeTask = (id: number) => {
+        setFormData({ ...formData, implementation_plan: formData.implementation_plan.filter(t => t.id !== id) });
     };
 
     if (!isOpen) return null;
@@ -191,23 +212,40 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
                             <textarea
                                 className="w-full h-40 p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-green-500 outline-none resize-none"
                                 placeholder="What specific actions will we take to address the root causes?"
-                                value={typeof formData.countermeasures === 'string' ? formData.countermeasures : JSON.stringify(formData.countermeasures)} // Simple Text fallback for MVP
-                                onChange={e => setFormData({ ...formData, countermeasures: e.target.value as any })}
+                                value={formData.countermeasures}
+                                onChange={e => setFormData({ ...formData, countermeasures: e.target.value })}
                             />
                         </div>
 
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border-t-4 border-green-500">
-                            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">6. Implementation Plan</h2>
-                            <div className="bg-gray-50 dark:bg-gray-900 p-8 text-center text-gray-400 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-                                <p>Interactive Gantt Chart Placeholder</p>
-                                <p className="text-xs mt-2">(MVP: Use text area below)</p>
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2 flex justify-between items-center">
+                                <span>6. Implementation Plan</span>
+                                <button onClick={addTask} className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 px-2 py-1 rounded hover:bg-green-200 transition-colors">+ Add Task</button>
+                            </h2>
+                            <div className="space-y-2">
+                                {formData.implementation_plan.length === 0 && <p className="text-gray-400 text-sm italic py-4 text-center">No tasks defined yet.</p>}
+                                {formData.implementation_plan.map((task, idx) => (
+                                    <div key={task.id} className="grid grid-cols-12 gap-2 bg-gray-50 dark:bg-gray-900 p-2 rounded-lg items-center text-sm">
+                                        <div className="col-span-1 text-gray-400 font-mono text-xs">{idx + 1}.</div>
+                                        <input
+                                            placeholder="What?"
+                                            className="col-span-5 bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-green-500 outline-none"
+                                            value={task.task} onChange={e => updateTask(task.id, 'task', e.target.value)}
+                                        />
+                                        <input
+                                            placeholder="Who?"
+                                            className="col-span-2 bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-green-500 outline-none"
+                                            value={task.owner} onChange={e => updateTask(task.id, 'owner', e.target.value)}
+                                        />
+                                        <input
+                                            type="date"
+                                            className="col-span-3 bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-green-500 outline-none text-xs"
+                                            value={task.dueDate} onChange={e => updateTask(task.id, 'dueDate', e.target.value)}
+                                        />
+                                        <button onClick={() => removeTask(task.id)} className="col-span-1 text-red-400 hover:text-red-600 font-bold">×</button>
+                                    </div>
+                                ))}
                             </div>
-                            <textarea
-                                className="w-full h-32 mt-4 p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-green-500 outline-none resize-none"
-                                placeholder="Who, What, When?"
-                                value={typeof formData.implementation_plan === 'string' ? formData.implementation_plan : ""}
-                                onChange={e => setFormData({ ...formData, implementation_plan: e.target.value as any })}
-                            />
                         </div>
 
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border-t-4 border-purple-500">
