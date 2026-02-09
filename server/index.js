@@ -381,20 +381,36 @@ app.get('/a3/:idea_id', async (req, res) => {
     }
 });
 
-// CREATE A3 (Initialize)
+// CREATE A3 (Initialize or Full Save)
 app.post('/a3', async (req, res) => {
     try {
-        const { idea_id, background } = req.body;
+        const {
+            idea_id, background, current_condition, target_condition,
+            root_cause_analysis, countermeasures, implementation_plan,
+            effect_confirmation, standardization, status
+        } = req.body;
 
         // Check if exists first
         const check = await pool.query("SELECT * FROM a3_worksheets WHERE idea_id = $1", [idea_id]);
         if (check.rows.length > 0) {
-            return res.json(check.rows[0]); // Return existing if someone double-clicked
+            // If it exists but we called POST, let's treat it as a PUT or return existing. 
+            // Better to fail or return existing so frontend switches to PUT.
+            return res.json(check.rows[0]);
         }
 
         const newA3 = await pool.query(
-            "INSERT INTO a3_worksheets (idea_id, background) VALUES ($1, $2) RETURNING *",
-            [idea_id, background]
+            `INSERT INTO a3_worksheets (
+                idea_id, background, current_condition, target_condition,
+                root_cause_analysis, countermeasures, implementation_plan,
+                effect_confirmation, standardization, status
+            ) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+             RETURNING *`,
+            [
+                idea_id, background, current_condition, target_condition,
+                root_cause_analysis, countermeasures, implementation_plan,
+                effect_confirmation, standardization, status || "Draft"
+            ]
         );
         res.json(newA3.rows[0]);
     } catch (err) {

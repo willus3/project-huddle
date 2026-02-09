@@ -66,7 +66,7 @@ CREATE TABLE a3_worksheets (
     current_condition TEXT, -- Supports images via URL in JSON or Markdown if needed
     target_condition TEXT,
     root_cause_analysis JSONB, -- Stores 5-Whys and Fishbone data structure
-    countermeasures JSONB, -- Array of planned experiments
+    countermeasures TEXT, -- Detailed text description of experiments
     implementation_plan JSONB, -- Gantt chart data
     effect_confirmation TEXT,
     standardization TEXT,
