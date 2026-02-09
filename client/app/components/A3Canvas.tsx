@@ -49,13 +49,21 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
                 if (data) {
                     setA3Data(data);
                     // Merge DB data with form defaults
+                    const cleanText = (val: any) => {
+                        if (!val) return "";
+                        if (typeof val === 'string') {
+                            if (val === '{}' || val === '[]') return "";
+                            return val;
+                        }
+                        return ""; // If it's still an object (legacy), map to empty
+                    };
+
                     setFormData({
                         background: data.background || idea.problem_statement || "",
                         current_condition: data.current_condition || "",
                         target_condition: data.target_condition || "",
                         root_cause_analysis: data.root_cause_analysis || { five_whys: ["", "", "", "", ""], fishbone: {} },
-                        // FIX: handle JSON parsing or legacy string data safely
-                        countermeasures: typeof data.countermeasures === 'string' ? data.countermeasures : "",
+                        countermeasures: cleanText(data.countermeasures),
                         implementation_plan: Array.isArray(data.implementation_plan) ? data.implementation_plan : [],
                         effect_confirmation: data.effect_confirmation || "",
                         standardization: data.standardization || "",
