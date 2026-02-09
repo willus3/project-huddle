@@ -83,10 +83,8 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
                 // Initialize New
                 setFormData(prev => ({ ...prev, background: idea.problem_statement }));
             }
-        } else {
-            setFormData(prev => ({ ...prev, background: idea.problem_statement }));
         }
-    } catch (err) {
+        } catch (err) {
         console.error("Failed to fetch A3", err);
     } finally {
         setLoading(false);
