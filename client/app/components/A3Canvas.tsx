@@ -43,7 +43,7 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
     const fetchA3Data = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${API_BASE_URL}/a3/${idea.id}`);
+            const res = await fetch(`${API_BASE_URL}/a3/${idea.id}`, { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
                 // Helper to parse implementation plan
