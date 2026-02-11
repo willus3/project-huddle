@@ -10,9 +10,10 @@ interface IdeaDetailsModalProps {
     onUpdate: (id: string, data: any) => void;
     onPromote: (id: number, timeline: string, userId: string) => void;
     isManager: boolean;
+    isPro?: boolean;
 }
 
-export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdate, onPromote, isManager }: IdeaDetailsModalProps) {
+export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdate, onPromote, isManager, isPro }: IdeaDetailsModalProps) {
     const [assignedUserId, setAssignedUserId] = useState(idea?.user_id || "");
     const [showA3, setShowA3] = useState(false);
 
@@ -33,9 +34,8 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
         }
     };
 
-    // PRO TIER LOGIC: Mock check (True if Major Project)
+    // PRO TIER LOGIC
     const isMajorProject = (idea.impact === 'High' && idea.effort === 'High') || idea.category === 'Major Project';
-    const isProTier = true; // Hardcoded for demo
 
     return (
         <>
@@ -66,16 +66,24 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
                             <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-xl p-4 flex justify-between items-center">
                                 <div>
                                     <h3 className="font-bold text-purple-800 dark:text-purple-200 flex items-center gap-2">
-                                        ⚡ Major Project Detected
-                                        <span className="text-[10px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full uppercase">Pro</span>
+                                        ⚡ Major Project Deep-Dive
+                                        {!isPro && <span className="text-[10px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full uppercase">Pro Feature</span>}
+                                        {isPro && <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded-full uppercase">Pro</span>}
                                     </h3>
-                                    <p className="text-xs text-purple-600 dark:text-purple-300">This issue requires deep-dive root cause analysis.</p>
+                                    <p className="text-xs text-purple-600 dark:text-purple-300">
+                                        {isPro
+                                            ? "Access full A3 Root Cause Analysis workspace."
+                                            : "Upgrade to Project Huddle Pro for A3 root-cause analysis."}
+                                    </p>
                                 </div>
                                 <button
-                                    onClick={() => setShowA3(true)}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-sm shadow-md transition-all flex items-center gap-2"
+                                    onClick={() => {
+                                        if (isPro) setShowA3(true);
+                                        else alert("🚀 This is a Pro Feature! Upgrade to access the A3 Root Cause Analysis Workspace.");
+                                    }}
+                                    className={`${isPro ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-400 cursor-not-allowed'} text-white font-bold py-2 px-4 rounded-lg text-sm shadow-md transition-all flex items-center gap-2`}
                                 >
-                                    Open A3 Workspace ↗
+                                    {isPro ? "Open A3 Workspace ↗" : "Locked (Pro) 🔒"}
                                 </button>
                             </div>
                         )}
