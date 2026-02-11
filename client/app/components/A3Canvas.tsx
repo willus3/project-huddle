@@ -52,11 +52,15 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
                     if (Array.isArray(data.implementation_plan)) {
                         parsedPlan = data.implementation_plan;
                     } else if (typeof data.implementation_plan === 'string') {
-                        parsedPlan = JSON.parse(data.implementation_plan);
+                        const parsed = JSON.parse(data.implementation_plan);
+                        if (Array.isArray(parsed)) parsedPlan = parsed;
                     }
                 } catch (e) {
                     parsedPlan = [];
                 }
+
+                // Ensure it is definitely an array
+                if (!Array.isArray(parsedPlan)) parsedPlan = [];
 
                 // Helper to clean text
                 const cleanText = (val: any) => {
