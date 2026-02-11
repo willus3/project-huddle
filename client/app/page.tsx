@@ -23,6 +23,7 @@ export default function Home() {
   const [ideas, setIdeas] = useState<any[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<any>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [isPro, setIsPro] = useState(true);
 
 
   // BRANDING STATE
@@ -262,8 +263,20 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 mt-2 md:mt-0 border-gray-100 dark:border-gray-700">
           {/* Dark Mode Toggle */}
-          <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-300">
+          <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-300" title="Toggle Dark Mode">
             {isDarkMode ? '☀️' : '🌙'}
+          </button>
+
+          {/* Pro Mode Toggle */}
+          <button
+            onClick={() => setIsPro(!isPro)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border-2 shadow-sm ${isPro ? 'bg-purple-600 border-purple-400 text-white' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500'}`}
+          >
+            {isPro ? (
+              <><span>💎 Pro</span><div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div></>
+            ) : (
+              <><span>⭐ Standard</span></>
+            )}
           </button>
 
           <div className="text-left md:text-right"><p className="text-sm font-bold text-gray-900 dark:text-white">{currentUser.full_name}</p><p className="text-xs text-gray-500 dark:text-gray-400">{currentUser.role === 'manager' ? '⭐ Manager' : 'Team Member'}</p></div>
@@ -351,7 +364,7 @@ export default function Home() {
             </div>
           </div>
         )}
-        {activeTab === "huddle" && (<div><div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-6 rounded-xl shadow-md mb-8"><div className="flex flex-wrap justify-between items-start gap-4 mb-4"><div><h2 className="text-2xl font-bold">Team Performance</h2><p className="text-gray-400 text-sm">Target vs. Actual Submissions</p></div>{currentUser.role === 'manager' && (<div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"><select value={selectedTeamFilter} onChange={(e) => setSelectedTeamFilter(e.target.value)} className="bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded text-xs font-bold outline-none flex-1 sm:flex-none"><option value="all">👁️ View All Teams</option>{companyStats.map(team => (<option key={team.id} value={team.id}>{team.name}</option>))}</select></div>)}</div>{teamStats ? (<div className="flex flex-col md:flex-row gap-8 items-center mt-6"><div className="flex-1 w-full"><div className="flex justify-between text-sm font-bold mb-2"><span>{teamStats.team?.name || "Loading..."}</span><span className="text-gray-400">Goal: {teamStats.team?.monthly_goal || 0}</span></div><div className="w-full bg-gray-700 rounded-full h-6 relative overflow-hidden"><div className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`} style={{ width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%` }}></div></div></div>{selectedTeamFilter !== 'all' && (<div className="w-full md:w-1/3 border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 pl-0 md:pl-8"><h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3><div className="space-y-2">{teamStats.users?.map((u: any, idx: number) => (<div key={idx} className="flex justify-between text-sm"><span>{u.full_name}</span><span className={u.actual >= u.monthly_goal ? "text-blue-400 font-bold" : "text-gray-400"}>{u.actual} / {u.monthly_goal}</span></div>))}</div></div>)}</div>) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}</div><MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} /><hr className="my-12 border-gray-200 dark:border-gray-700" /><h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Execution Tracking</h2><KanbanBoard ideas={ideas.filter(i => !i.is_archived)} onUpdate={updateIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} isPro={true} />
+        {activeTab === "huddle" && (<div><div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-6 rounded-xl shadow-md mb-8"><div className="flex flex-wrap justify-between items-start gap-4 mb-4"><div><h2 className="text-2xl font-bold">Team Performance</h2><p className="text-gray-400 text-sm">Target vs. Actual Submissions</p></div>{currentUser.role === 'manager' && (<div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"><select value={selectedTeamFilter} onChange={(e) => setSelectedTeamFilter(e.target.value)} className="bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded text-xs font-bold outline-none flex-1 sm:flex-none"><option value="all">👁️ View All Teams</option>{companyStats.map(team => (<option key={team.id} value={team.id}>{team.name}</option>))}</select></div>)}</div>{teamStats ? (<div className="flex flex-col md:flex-row gap-8 items-center mt-6"><div className="flex-1 w-full"><div className="flex justify-between text-sm font-bold mb-2"><span>{teamStats.team?.name || "Loading..."}</span><span className="text-gray-400">Goal: {teamStats.team?.monthly_goal || 0}</span></div><div className="w-full bg-gray-700 rounded-full h-6 relative overflow-hidden"><div className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`} style={{ width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%` }}></div></div></div>{selectedTeamFilter !== 'all' && (<div className="w-full md:w-1/3 border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 pl-0 md:pl-8"><h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3><div className="space-y-2">{teamStats.users?.map((u: any, idx: number) => (<div key={idx} className="flex justify-between text-sm"><span>{u.full_name}</span><span className={u.actual >= u.monthly_goal ? "text-blue-400 font-bold" : "text-gray-400"}>{u.actual} / {u.monthly_goal}</span></div>))}</div></div>)}</div>) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}</div><MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} /><hr className="my-12 border-gray-200 dark:border-gray-700" /><h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Execution Tracking</h2><KanbanBoard ideas={ideas.filter(i => !i.is_archived)} onUpdate={updateIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} isPro={isPro} />
 
 
 
@@ -431,7 +444,7 @@ export default function Home() {
         onUpdate={updateIdea}
         onPromote={promoteIdea}
         isManager={currentUser.role === 'manager'}
-        isPro={true}
+        isPro={isPro}
       />
     </div>
 
