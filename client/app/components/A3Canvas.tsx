@@ -46,6 +46,7 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
             const res = await fetch(`${API_BASE_URL}/a3/${idea.id}`, { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
+                setA3Data(data);
                 // Helper to parse implementation plan
                 let parsedPlan: TaskItem[] = [];
                 try {
