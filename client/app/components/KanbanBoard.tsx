@@ -8,7 +8,7 @@ const COLUMNS = [
   { id: '360_Days', label: '🏗️ 1 Year', bg: 'bg-slate-50 dark:bg-slate-950', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200 dark:border-slate-800' },
 ];
 
-export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick, isPro }: { ideas: any[], onUpdate: any, isManager: boolean, onIdeaClick: (idea: any) => void, isPro?: boolean }) {
+export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick, isPro, onA3Click }: { ideas: any[], onUpdate: any, isManager: boolean, onIdeaClick: (idea: any) => void, isPro?: boolean, onA3Click: (idea: any) => void }) {
 
 
   const handleDragStart = (e: React.DragEvent, id: number) => {
@@ -79,17 +79,37 @@ export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick, i
                     className={`${cardBg} ${cardBorder} dark:bg-gray-800 dark:border-gray-700 p-4 rounded-xl shadow-sm transition-all cursor-pointer hover:shadow-lg ${isManager ? 'active:cursor-grabbing' : ''} relative group`}>
 
                     <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-gray-400">{idea.category}</span>
-                        {isPro && isMajor && (
-                          <span className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ring-1 ring-purple-200 dark:ring-purple-800">
-                            Pro Major
-                          </span>
+                      <div className="flex flex-col gap-1 w-full">
+                        <div className="flex justify-between items-center w-full">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase text-gray-400">{idea.category}</span>
+                            {isPro && isMajor && (
+                              <span className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ring-1 ring-purple-200 dark:ring-purple-800">
+                                Pro Major
+                              </span>
+                            )}
+                          </div>
+                          {idea.full_name && (
+                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full" title={idea.full_name}>👤 {idea.full_name.split(' ')[0]}</span>
+                          )}
+                        </div>
+
+                        {/* A3 PROGRESS BAR */}
+                        {isPro && isMajor && idea.a3_progress !== null && (
+                          <div className="mt-2 w-full">
+                            <div className="flex justify-between text-[9px] font-bold text-purple-600 dark:text-purple-400 uppercase mb-1">
+                              <span>A3 Progress</span>
+                              <span>{Math.round(idea.a3_progress)}%</span>
+                            </div>
+                            <div className="w-full bg-purple-100 dark:bg-purple-900/50 rounded-full h-1.5 overflow-hidden ring-1 ring-purple-200 dark:ring-purple-800">
+                              <div
+                                className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                                style={{ width: `${idea.a3_progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
                         )}
                       </div>
-                      {idea.full_name && (
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full" title={idea.full_name}>👤 {idea.full_name.split(' ')[0]}</span>
-                      )}
                     </div>
 
                     <p className="font-bold text-gray-800 dark:text-gray-100 text-sm mb-3 group-hover:text-blue-600 transition-colors">{idea.title}</p>
@@ -127,12 +147,9 @@ export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick, i
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onIdeaClick(idea); // This actually opens the modal, but in the next step I'll make the modal auto-open A3 if a certain flag is set, OR I can just let it open the modal which already has the A3 button.
-                            // Better idea: The user wants to "drill into it by opening the idea card and then opening the A3". 
-                            // So let's add a "Direct A3" button that tells the parent to click the A3 button inside the modal?
-                            // Or just make it clear that this card is an A3 project.
+                            onA3Click(idea);
                           }}
-                          className="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm transition-all"
+                          className="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-md transition-all flex items-center gap-1.5 active:scale-95"
                         >
                           A3 Workspace ↗
                         </button>

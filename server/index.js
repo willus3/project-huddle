@@ -47,12 +47,26 @@ app.get('/ideas', async (req, res) => {
         // Check if there is a team filter (e.g., /ideas?teamId=1)
         const { teamId } = req.query;
 
-        // Base Query: Get Idea + User Name + Team Name
+        // Base Query: Get Idea + User Name + Team Name + A3 Progress
         let queryText = `
-            SELECT i.*, u.full_name, u.team_id, t.name as team_name 
+            SELECT i.*, u.full_name, u.team_id, t.name as team_name,
+            CASE 
+                WHEN a.id IS NULL THEN NULL 
+                ELSE (
+                    (CASE WHEN (a.background IS NOT NULL AND a.background <> '') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.current_condition IS NOT NULL AND a.current_condition <> '') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.target_condition IS NOT NULL AND a.target_condition <> '') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.root_cause_analysis IS NOT NULL AND a.root_cause_analysis::text <> '{"five_whys": ["", "", "", "", ""], "fishbone": {}}') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.countermeasures IS NOT NULL AND a.countermeasures <> '') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.implementation_plan IS NOT NULL AND a.implementation_plan <> '[]') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.effect_confirmation IS NOT NULL AND a.effect_confirmation <> '') THEN 1 ELSE 0 END) +
+                    (CASE WHEN (a.standardization IS NOT NULL AND a.standardization <> '') THEN 1 ELSE 0 END)
+                ) * 100 / 8
+            END as a3_progress
             FROM ideas i
             LEFT JOIN users u ON i.submitter_id = u.id
             LEFT JOIN teams t ON u.team_id = t.id
+            LEFT JOIN a3_worksheets a ON i.id = a.idea_id
         `;
 
         const queryParams = [];
