@@ -156,10 +156,20 @@ export default function A3Canvas({ idea, onClose, isOpen }: A3CanvasProps) {
                         <p className="text-xs text-gray-500">Ref: #{idea?.id} - {idea?.title}</p>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <span className="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold border border-gray-200 dark:border-gray-600">
-                        Status: {formData.status}
-                    </span>
+                <div className="flex gap-2 items-center">
+                    <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 px-2 overflow-hidden">
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 mr-2 uppercase">Status:</span>
+                        <select
+                            className="bg-transparent text-sm font-bold text-gray-900 dark:text-white outline-none py-1 cursor-pointer"
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        >
+                            <option value="Draft" className="dark:bg-gray-800">Draft</option>
+                            <option value="In Progress" className="dark:bg-gray-800">In Progress</option>
+                            <option value="Review" className="dark:bg-gray-800">Review</option>
+                            <option value="Closed" className="dark:bg-gray-800">Closed</option>
+                        </select>
+                    </div>
                     <button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors">
                         💾 Save Workspace
                     </button>
