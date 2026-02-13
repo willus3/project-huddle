@@ -348,28 +348,43 @@ app.get('/settings/branding', async (req, res) => {
     try {
         // We assume Single Tenant, so we always grab Organization ID 1
         const settings = await pool.query("SELECT name, logo_url, primary_color FROM organizations WHERE id = 1");
+
+        if (settings.rows.length === 0) {
+            // Return defaults if row doesn't exist yet
+            return res.json({
+                name: "Project Huddle",
+                logo_url: "",
+                primary_color: "#2563EB"
+            });
+        }
         res.json(settings.rows[0]);
     } catch (err) {
-        console.error(err.message);
+        console.error("GET Branding Error:", err.message);
         res.status(500).send("Server Error");
     }
 });
 
 // ==========================================
-// ADMIN ROUTE: Update Branding
+// ADMIN ROUTE: Update Branding (With Upsert)
 // ==========================================
 app.put('/settings/branding', async (req, res) => {
     try {
         const { name, logo_url, primary_color } = req.body;
 
-        // Update ID 1
-        const update = await pool.query(
-            "UPDATE organizations SET name = $1, logo_url = $2, primary_color = $3 WHERE id = 1 RETURNING *",
-            [name, logo_url, primary_color]
-        );
+        const query = `
+            INSERT INTO organizations (id, name, logo_url, primary_color)
+            VALUES (1, $1, $2, $3)
+            ON CONFLICT (id) DO UPDATE SET
+                name = EXCLUDED.name,
+                logo_url = EXCLUDED.logo_url,
+                primary_color = EXCLUDED.primary_color
+            RETURNING *;
+        `;
+
+        const update = await pool.query(query, [name, logo_url, primary_color]);
         res.json(update.rows[0]);
     } catch (err) {
-        console.error(err.message);
+        console.error("PUT Branding Error:", err.message);
         res.status(500).send("Server Error");
     }
 });
