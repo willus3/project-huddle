@@ -177,7 +177,7 @@ app.get('/stats/company', async (req, res) => {
                  AND date_trunc('month', i.updated_at) = date_trunc('month', CURRENT_DATE)
                 ), 0)::int as completions
             FROM teams t
-            ORDER BY t.name ASC;
+            ORDER BY submissions DESC;
         `;
 
         const companyStats = await pool.query(query);
