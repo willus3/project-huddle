@@ -47,9 +47,13 @@ app.get('/ideas', async (req, res) => {
         // Check if there is a team filter (e.g., /ideas?teamId=1)
         const { teamId } = req.query;
 
-        // Base Query: Get Idea + User Name + Team Name + A3 Progress
+        // Base Query: Get Idea + User Name + Team Name + A3 Progress + Assignee Name
         let queryText = `
-            SELECT i.*, u.full_name, u.team_id, t.name as team_name,
+            SELECT i.*, 
+                   u.full_name, 
+                   u.team_id, 
+                   t.name as team_name,
+                   ua.full_name as assignee_name,
             CASE 
                 WHEN a.id IS NULL THEN NULL 
                 ELSE (
@@ -65,6 +69,7 @@ app.get('/ideas', async (req, res) => {
             END as a3_progress
             FROM ideas i
             LEFT JOIN users u ON i.submitter_id = u.id
+            LEFT JOIN users ua ON i.assignee_id = ua.id
             LEFT JOIN teams t ON u.team_id = t.id
             LEFT JOIN a3_worksheets a ON i.id = a.idea_id
         `;
@@ -89,13 +94,15 @@ app.get('/ideas', async (req, res) => {
 });
 
 // ==========================================
-// ROUTE: Update Idea (PUT) - Now with Review Date
+// ROUTE: Update Idea (PUT) - Support Full Editing
 // ==========================================
 app.put('/ideas/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        // Added next_review_date to the destructured body
-        const { status, impact, effort, user_id, next_review_date, is_archived } = req.body;
+        const {
+            status, impact, effort, user_id, next_review_date, is_archived,
+            title, category, problem_statement, proposed_solution, expected_benefit
+        } = req.body;
 
         const updateQuery = `
             UPDATE ideas 
@@ -105,13 +112,22 @@ app.put('/ideas/:id', async (req, res) => {
                 effort = COALESCE($3, effort),
                 assignee_id = COALESCE($4, assignee_id),
                 next_review_date = COALESCE($5, next_review_date),
-                is_archived = COALESCE($6, is_archived)
-            WHERE id = $7 
+                is_archived = COALESCE($6, is_archived),
+                title = COALESCE($7, title),
+                category = COALESCE($8, category),
+                problem_statement = COALESCE($9, problem_statement),
+                proposed_solution = COALESCE($10, proposed_solution),
+                expected_benefit = COALESCE($11, expected_benefit),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $12 
             RETURNING *
         `;
 
-        // Note: We added next_review_date as the 5th parameter, id is now 6th
-        const updatedIdea = await pool.query(updateQuery, [status, impact, effort, user_id, next_review_date, is_archived, id]);
+        const updatedIdea = await pool.query(updateQuery, [
+            status, impact, effort, user_id, next_review_date, is_archived,
+            title, category, problem_statement, proposed_solution, expected_benefit,
+            id
+        ]);
 
         if (updatedIdea.rows.length === 0) {
             return res.status(404).json({ message: "Idea not found" });

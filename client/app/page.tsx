@@ -447,6 +447,7 @@ export default function Home() {
         onPromote={promoteIdea}
         isManager={currentUser.role === 'manager'}
         isPro={isPro}
+        currentUser={currentUser}
       />
       <A3Canvas idea={activeA3Idea} isOpen={!!activeA3Idea} onClose={() => { setActiveA3Idea(null); fetchIdeas(selectedTeamFilter); }} />
     </div>

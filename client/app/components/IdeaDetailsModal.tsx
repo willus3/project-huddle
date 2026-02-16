@@ -11,13 +11,44 @@ interface IdeaDetailsModalProps {
     onPromote: (id: number, timeline: string, userId: string) => void;
     isManager: boolean;
     isPro?: boolean;
+    currentUser: any;
 }
 
-export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdate, onPromote, isManager, isPro }: IdeaDetailsModalProps) {
-    const [assignedUserId, setAssignedUserId] = useState(idea?.user_id || "");
+export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdate, onPromote, isManager, isPro, currentUser }: IdeaDetailsModalProps) {
+    const [assignedUserId, setAssignedUserId] = useState(idea?.assignee_id || "");
     const [showA3, setShowA3] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({
+        title: "",
+        category: "",
+        problem_statement: "",
+        proposed_solution: "",
+        expected_benefit: ""
+    });
+
+    React.useEffect(() => {
+        if (idea) {
+            setAssignedUserId(idea.assignee_id || "");
+            setEditForm({
+                title: idea.title || "",
+                category: idea.category || "",
+                problem_statement: idea.problem_statement || "",
+                proposed_solution: idea.proposed_solution || "",
+                expected_benefit: idea.expected_benefit || ""
+            });
+            setIsEditing(false);
+        }
+    }, [idea]);
 
     if (!isOpen || !idea) return null;
+
+    const isCreator = currentUser?.id === idea.submitter_id;
+    const canEdit = isManager || isCreator;
+
+    const handleSaveEdit = () => {
+        onUpdate(idea.id, editForm);
+        setIsEditing(false);
+    };
 
     const handlePromoteClick = (timeline: string) => {
         if (!assignedUserId) {
@@ -44,18 +75,67 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
 
                     {/* HEADER */}
                     <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start sticky top-0 bg-white dark:bg-gray-800 z-10">
-                        <div>
+                        <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                                <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
-                                    {idea.category}
-                                </span>
+                                {isEditing ? (
+                                    <select
+                                        className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide outline-none border border-blue-200 dark:border-blue-700"
+                                        value={editForm.category}
+                                        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                                    >
+                                        <option>Safety</option>
+                                        <option>Quality</option>
+                                        <option>Delivery</option>
+                                        <option>Cost</option>
+                                        <option>Morale</option>
+                                        <option>Major Project</option>
+                                    </select>
+                                ) : (
+                                    <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
+                                        {idea.category}
+                                    </span>
+                                )}
                                 <span className="text-gray-400 dark:text-gray-500 text-xs font-mono">#{idea.id}</span>
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">{idea.title}</h2>
+                            {isEditing ? (
+                                <input
+                                    className="text-2xl font-bold text-gray-900 dark:text-white leading-tight w-full bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={editForm.title}
+                                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                />
+                            ) : (
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">{idea.title}</h2>
+                            )}
                         </div>
-                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+                        <div className="flex items-center gap-2 ml-4">
+                            {canEdit && !isEditing && (
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                                >
+                                    Edit ✏️
+                                </button>
+                            )}
+                            {isEditing && (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handleSaveEdit}
+                                        className="text-xs font-bold bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition shadow-sm"
+                                    >
+                                        Save ✅
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditing(false)}
+                                        className="text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            )}
+                            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
                     </div>
 
                     {/* CONTENT */}
@@ -91,11 +171,27 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
                                 <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Problem Statement</h3>
-                                <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{idea.problem_statement}</p>
+                                {isEditing ? (
+                                    <textarea
+                                        className="w-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 leading-relaxed border border-gray-200 dark:border-gray-700 p-2 rounded-lg h-32 focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={editForm.problem_statement}
+                                        onChange={(e) => setEditForm({ ...editForm, problem_statement: e.target.value })}
+                                    />
+                                ) : (
+                                    <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{idea.problem_statement}</p>
+                                )}
                             </div>
                             <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl">
                                 <h3 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-2">Proposed Solution</h3>
-                                <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{idea.proposed_solution}</p>
+                                {isEditing ? (
+                                    <textarea
+                                        className="w-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 leading-relaxed border border-blue-100 dark:border-blue-900 p-2 rounded-lg h-32 focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={editForm.proposed_solution}
+                                        onChange={(e) => setEditForm({ ...editForm, proposed_solution: e.target.value })}
+                                    />
+                                ) : (
+                                    <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{idea.proposed_solution}</p>
+                                )}
                             </div>
                         </div>
 
@@ -103,7 +199,15 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Expected Benefit</h3>
                             <div className="flex items-center gap-3">
                                 <span className="text-2xl">🚀</span>
-                                <p className="text-gray-800 dark:text-gray-200 font-medium text-lg">{idea.expected_benefit}</p>
+                                {isEditing ? (
+                                    <input
+                                        className="flex-1 bg-gray-50 dark:bg-gray-900/50 text-gray-800 dark:text-gray-200 font-medium text-lg border border-gray-200 dark:border-gray-700 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={editForm.expected_benefit}
+                                        onChange={(e) => setEditForm({ ...editForm, expected_benefit: e.target.value })}
+                                    />
+                                ) : (
+                                    <p className="text-gray-800 dark:text-gray-200 font-medium text-lg">{idea.expected_benefit}</p>
+                                )}
                             </div>
                         </div>
 
@@ -111,8 +215,11 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
 
                         {/* METADATA */}
                         <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                            <p>Submitted by <span className="font-bold text-gray-900 dark:text-white">{idea.full_name || "Unknown"}</span></p>
-                            <p>Status: <span className="font-bold">{idea.status}</span></p>
+                            <div>
+                                <p>Submitted by <span className="font-bold text-gray-900 dark:text-white">{idea.full_name || "Unknown"}</span></p>
+                                {idea.assignee_name && <p className="mt-1">Assigned to <span className="font-bold text-blue-600 dark:text-blue-400">{idea.assignee_name}</span></p>}
+                            </div>
+                            <p className="text-right">Status: <span className="font-bold">{idea.status}</span></p>
                         </div>
                     </div>
 
@@ -128,7 +235,8 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose, users, onUpdat
                                         value={assignedUserId}
                                         onChange={(e) => {
                                             setAssignedUserId(e.target.value);
-                                            // Optional: Auto-update user immediately or wait for Promote? Let's just set local state for the Promote action interactions.
+                                            // Optional: Auto-update user immediately
+                                            onUpdate(idea.id, { assignee_id: e.target.value });
                                         }}
                                     >
                                         <option value="">-- Select Owner --</option>

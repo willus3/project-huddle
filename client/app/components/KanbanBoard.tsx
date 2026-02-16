@@ -90,7 +90,10 @@ export default function KanbanBoard({ ideas, onUpdate, isManager, onIdeaClick, i
                             )}
                           </div>
                           {idea.full_name && (
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full" title={idea.full_name}>👤 {idea.full_name.split(' ')[0]}</span>
+                            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full" title={idea.full_name}>👤 {idea.full_name.split(' ')[0]}</span>
+                          )}
+                          {idea.assignee_name && idea.assignee_id !== idea.submitter_id && (
+                            <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-1 rounded-full" title={`Assigned to: ${idea.assignee_name}`}>🏃 {idea.assignee_name.split(' ')[0]}</span>
                           )}
                         </div>
 
