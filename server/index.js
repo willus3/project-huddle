@@ -271,6 +271,45 @@ app.get('/stats/:team_id', async (req, res) => {
 });
 
 // ==========================================
+// ROUTE: Annual Company Stats
+// ==========================================
+app.get('/stats/company/annual', async (req, res) => {
+    try {
+        const { year } = req.query;
+        const targetYear = year ? parseInt(year) : new Date().getFullYear();
+
+        const query = `
+            WITH months AS (
+                SELECT generate_series(1, 12) AS month
+            )
+            SELECT 
+                m.month,
+                COALESCE((
+                    SELECT COUNT(*) 
+                    FROM ideas i
+                    WHERE EXTRACT(MONTH FROM i.created_at) = m.month 
+                    AND EXTRACT(YEAR FROM i.created_at) = $1
+                ), 0)::int as actual,
+                COALESCE((
+                    SELECT SUM(target_goal) FROM (
+                        SELECT COALESCE(mg.goal, t.monthly_goal) as target_goal
+                        FROM teams t
+                        LEFT JOIN monthly_goals mg ON t.id = mg.team_id AND mg.user_id IS NULL AND mg.month = m.month AND mg.year = $1
+                    ) as team_goals
+                ), 0)::int as goal
+            FROM months m
+            ORDER BY m.month;
+        `;
+
+        const annualStats = await pool.query(query, [targetYear]);
+        res.json(annualStats.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
 // ROUTE: Annual Team Stats
 // ==========================================
 app.get('/stats/:team_id/annual', async (req, res) => {

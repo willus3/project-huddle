@@ -96,8 +96,11 @@ export default function Home() {
   };
 
   const fetchAnnualStats = (teamId: string = selectedTeamFilter, year = selectedYear) => {
-    if (teamId === 'all') return;
-    fetch(`${API_BASE_URL}/stats/${teamId}/annual?year=${year}`)
+    const url = teamId === 'all'
+      ? `${API_BASE_URL}/stats/company/annual?year=${year}`
+      : `${API_BASE_URL}/stats/${teamId}/annual?year=${year}`;
+
+    fetch(url)
       .then(res => res.json())
       .then(setAnnualStats);
   };
@@ -583,53 +586,98 @@ export default function Home() {
 
         {activeTab === "company" && (
           <div>
-            <div className="mb-8 text-center">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Company Leaderboard 🏆</h2>
-              <p className="text-gray-500 dark:text-gray-400">Monthly Performance by Team</p>
+            <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+              <div className="text-center md:text-left">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Company Leaderboard 🏆</h2>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">Performance for {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][selectedMonth - 1]} {selectedYear}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAnnual(!showAnnual);
+                  if (!showAnnual) fetchAnnualStats('all', selectedYear);
+                }}
+                className={`px-6 py-3 rounded-lg text-xs font-black uppercase tracking-widest border transition-all shadow-sm ${showAnnual ? 'bg-blue-600 border-blue-500 text-white shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`}
+              >
+                {showAnnual ? '📊 Show Team Cards' : '📈 Show Annual Trends'}
+              </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {companyStats.map((team, index) => (
-                <div key={team.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow">
-                  <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white">
-                      {index === 0 && '🥇 '} {index === 1 && '🥈 '} {index === 2 && '🥉 '}{team.name}
-                    </h3>
-                    {parseInt(team.submissions) >= team.monthly_goal && (
-                      <span className="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-1 rounded tracking-tighter shadow-sm">
-                        On Target
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-6 space-y-6">
-                    <div>
-                      <div className="flex justify-between items-end text-sm mb-2">
-                        <span className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-wider">Submissions</span>
-                        <div className="text-right">
-                          <span className="font-bold text-gray-900 dark:text-white text-lg">{team.submissions}</span>
-                          <span className="text-gray-400 text-xs ml-1">/ {team.monthly_goal}</span>
-                          <div className="text-[10px] font-black text-blue-600 dark:text-blue-400">
-                            {Math.round((team.submissions / team.monthly_goal) * 100)}% OF GOAL
+
+            {showAnnual ? (
+              <div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-8 rounded-xl shadow-lg mb-12">
+                <div className="mb-8">
+                  <h3 className="text-xl font-bold">Company-wide Annual trends</h3>
+                  <p className="text-gray-400 text-sm">Aggregated results across all departments for {selectedYear}</p>
+                </div>
+                <div className="flex gap-2 items-end justify-between h-56 px-4">
+                  {annualStats.map((m: any, i: number) => (
+                    <div key={i} className="flex-1 flex flex-col items-center group relative">
+                      <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-3 py-1.5 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-2xl">
+                        {m.actual} Ideas / Goal: {m.goal}
+                      </div>
+                      <div className="w-full bg-gray-800/50 rounded-t-xl relative overflow-hidden h-40">
+                        <div
+                          className={`absolute bottom-0 w-full rounded-t-xl transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.6)]' : 'bg-blue-600 opacity-80'}`}
+                          style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
+                        />
+                        <div
+                          className="absolute bottom-0 w-full border-t-2 border-dashed border-white/30 z-10"
+                          style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-black text-gray-400 mt-3 uppercase tracking-tighter">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 flex justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  <div className="flex items-center gap-3"><div className="w-4 h-4 bg-blue-600 rounded-sm"></div> Total Submissions</div>
+                  <div className="flex items-center gap-3"><div className="w-4 h-1 border-t-2 border-dashed border-white/50"></div> Combined Target</div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {companyStats.map((team, index) => (
+                  <div key={team.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow">
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
+                      <h3 className="font-bold text-lg text-gray-800 dark:text-white">
+                        {index === 0 && '🥇 '} {index === 1 && '🥈 '} {index === 2 && '🥉 '}{team.name}
+                      </h3>
+                      {parseInt(team.submissions) >= team.monthly_goal && (
+                        <span className="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-1 rounded tracking-tighter shadow-sm">
+                          On Target
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-6 space-y-6">
+                      <div>
+                        <div className="flex justify-between items-end text-sm mb-2">
+                          <span className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-wider">Submissions</span>
+                          <div className="text-right">
+                            <span className="font-bold text-gray-900 dark:text-white text-lg">{team.submissions}</span>
+                            <span className="text-gray-400 text-xs ml-1">/ {team.monthly_goal}</span>
+                            <div className="text-[10px] font-black text-blue-600 dark:text-blue-400">
+                              {Math.round((team.submissions / team.monthly_goal) * 100)}% OF GOAL
+                            </div>
                           </div>
                         </div>
+                        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
+                          <div
+                            className={`h-3 rounded-full transition-all duration-1000 ${parseInt(team.submissions) >= team.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`}
+                            style={{ width: `${Math.min(100, (team.submissions / team.monthly_goal) * 100)}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
-                        <div
-                          className={`h-3 rounded-full transition-all duration-1000 ${parseInt(team.submissions) >= team.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`}
-                          style={{ width: `${Math.min(100, (team.submissions / team.monthly_goal) * 100)}%` }}
-                        ></div>
+                      <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl flex justify-between items-center border border-gray-100 dark:border-gray-700">
+                        <div>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest mb-1">Completed</p>
+                          <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{team.completions}</p>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-sm text-2xl border border-gray-100 dark:border-gray-700">✅</div>
                       </div>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl flex justify-between items-center border border-gray-100 dark:border-gray-700">
-                      <div>
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest mb-1">Completed</p>
-                        <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{team.completions}</p>
-                      </div>
-                      <div className="bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-sm text-2xl border border-gray-100 dark:border-gray-700">✅</div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
