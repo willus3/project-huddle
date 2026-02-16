@@ -109,7 +109,7 @@ export default function Home() {
     if (currentUser) {
       fetchUsers();
       fetchCompanyStats();
-      const initialFilter = currentUser.role === 'manager' ? "all" : (String(currentUser.team_id) || "1");
+      const initialFilter = String(currentUser.team_id) || "1";
       setSelectedTeamFilter(initialFilter);
       fetchIdeas(initialFilter);
       fetchTeamStats();
