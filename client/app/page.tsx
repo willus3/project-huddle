@@ -460,23 +460,23 @@ export default function Home() {
                         <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-2 py-1 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl">
                           {m.actual} / {m.goal} Ideas
                         </div>
-                        <div className="w-full bg-gray-800/50 rounded-t-lg relative overflow-hidden h-32">
+                        <div className="w-full bg-gray-800/40 rounded-t-lg relative h-32">
                           <div
                             className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-blue-600 opacity-75'}`}
                             style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
                           />
-                          {/* Visible Target Line */}
+                          {/* Visible Target Line - Solid for better visibility */}
                           <div
-                            className="absolute w-full border-t-2 border-dashed border-amber-400/70 z-10"
+                            className="absolute w-full border-t-2 border-emerald-400/90 z-20"
                             style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
                           />
-                          {/* Minimal Target Label on bar */}
+                          {/* Left-aligned Label to prevent clipping */}
                           {m.goal > 0 && (
                             <div
-                              className="absolute right-0 translate-x-1/2 bg-amber-400 text-[8px] font-black px-1 rounded-sm text-black z-20 pointer-events-none"
-                              style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(50%)' }}
+                              className="absolute left-0 bg-emerald-400 text-[8px] font-black px-1 rounded-sm text-black z-30 pointer-events-none"
+                              style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(-50%)' }}
                             >
-                              {m.goal}
+                              GOAL: {m.goal}
                             </div>
                           )}
                         </div>
@@ -484,9 +484,9 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-6 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500">
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600"></div> Submissions</div>
-                    <div className="flex items-center gap-2"><div className="w-4 h-1 border-t-2 border-dashed border-amber-400/70"></div> Goal Target</div>
+                  <div className="mt-6 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded-sm"></div> Submissions</div>
+                    <div className="flex items-center gap-2"><div className="w-4 h-0.5 bg-emerald-400"></div> Target Threshold</div>
                   </div>
                 </div>
               ) : (
@@ -624,23 +624,23 @@ export default function Home() {
                       <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-3 py-1.5 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-2xl">
                         {m.actual} Ideas / Goal: {m.goal}
                       </div>
-                      <div className="w-full bg-gray-800/50 rounded-t-xl relative overflow-hidden h-40">
+                      <div className="w-full bg-gray-800/40 rounded-t-xl relative h-40">
                         <div
                           className={`absolute bottom-0 w-full rounded-t-xl transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.6)]' : 'bg-blue-600 opacity-80'}`}
                           style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
                         />
                         {/* High Visibility Target Line */}
                         <div
-                          className="absolute w-full border-t-2 border-dashed border-amber-400/70 z-10"
+                          className="absolute w-full border-t-2 border-emerald-400/90 z-20"
                           style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
                         />
                         {/* Target Value Label */}
                         {m.goal > 0 && (
                           <div
-                            className="absolute right-0 translate-x-1/2 bg-amber-400 text-[8px] font-black px-1.5 py-0.5 rounded-sm text-black z-20 shadow-sm pointer-events-none"
-                            style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(50%)' }}
+                            className="absolute left-0 bg-emerald-400 text-[8px] font-black px-1.5 py-0.5 rounded-sm text-black z-30 shadow-sm pointer-events-none"
+                            style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(-50%)' }}
                           >
-                            T: {m.goal}
+                            GOAL: {m.goal}
                           </div>
                         )}
                       </div>
@@ -650,7 +650,7 @@ export default function Home() {
                 </div>
                 <div className="mt-8 flex justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-gray-400">
                   <div className="flex items-center gap-3"><div className="w-4 h-4 bg-blue-600 rounded-sm"></div> Total Submissions</div>
-                  <div className="flex items-center gap-3"><div className="w-6 h-1 border-t-2 border-dashed border-amber-400/70"></div> Goal Target</div>
+                  <div className="flex items-center gap-3"><div className="w-6 h-0.5 bg-emerald-400"></div> Total Target</div>
                 </div>
               </div>
             ) : (
