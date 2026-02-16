@@ -45,7 +45,7 @@ app.post('/ideas', async (req, res) => {
 app.get('/ideas', async (req, res) => {
     try {
         // Check if there is a team filter (e.g., /ideas?teamId=1)
-        const { teamId } = req.query;
+        const { teamId, month, year } = req.query;
 
         // Base Query: Get Idea + User Name + Team Name + A3 Progress + Assignee Name
         let queryText = `
@@ -72,14 +72,22 @@ app.get('/ideas', async (req, res) => {
             LEFT JOIN users ua ON i.assignee_id = ua.id
             LEFT JOIN teams t ON u.team_id = t.id
             LEFT JOIN a3_worksheets a ON i.id = a.idea_id
+            WHERE 1=1
         `;
 
         const queryParams = [];
+        let paramIndex = 1;
 
         // Apply Filter if teamId is present and not 'all'
         if (teamId && teamId !== 'all') {
-            queryText += ` WHERE u.team_id = $1`;
+            queryText += ` AND u.team_id = $${paramIndex++}`;
             queryParams.push(parseInt(teamId));
+        }
+
+        // Apply Month/Year Date Filter
+        if (month && year) {
+            queryText += ` AND EXTRACT(MONTH FROM i.created_at) = $${paramIndex++} AND EXTRACT(YEAR FROM i.created_at) = $${paramIndex++}`;
+            queryParams.push(parseInt(month), parseInt(year));
         }
 
         queryText += ` ORDER BY i.id DESC`;
@@ -168,35 +176,42 @@ app.post('/login', async (req, res) => {
 });
 
 // ==========================================
-// ROUTE: Company Stats / Team Cards (The Fix for Zeros)
+// ROUTE: Company Stats / Team Cards (Historical Support)
 // ==========================================
 app.get('/stats/company', async (req, res) => {
     try {
+        const { month, year } = req.query;
+        const targetMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+        const targetYear = year ? parseInt(year) : new Date().getFullYear();
+
         const query = `
             SELECT 
                 t.id, 
                 t.name, 
-                t.monthly_goal,
-                -- Count Submissions (Created this month)
+                COALESCE(mg.goal, t.monthly_goal) as monthly_goal,
+                -- Count Submissions
                 COALESCE((SELECT COUNT(*) 
                  FROM ideas i 
                  JOIN users u ON i.submitter_id = u.id 
                  WHERE u.team_id = t.id 
-                 AND date_trunc('month', i.created_at) = date_trunc('month', CURRENT_DATE)
+                 AND EXTRACT(MONTH FROM i.created_at) = $1
+                 AND EXTRACT(YEAR FROM i.created_at) = $2
                 ), 0)::int as submissions,
-                -- Count Completions (Status 'Completed' & Updated this month)
+                -- Count Completions
                 COALESCE((SELECT COUNT(*) 
                  FROM ideas i 
                  JOIN users u ON i.submitter_id = u.id 
                  WHERE u.team_id = t.id 
                  AND i.status = 'Completed'
-                 AND date_trunc('month', i.updated_at) = date_trunc('month', CURRENT_DATE)
+                 AND EXTRACT(MONTH FROM i.updated_at) = $1
+                 AND EXTRACT(YEAR FROM i.updated_at) = $2
                 ), 0)::int as completions
             FROM teams t
+            LEFT JOIN monthly_goals mg ON t.id = mg.team_id AND mg.user_id IS NULL AND mg.month = $1 AND mg.year = $2
             ORDER BY submissions DESC;
         `;
 
-        const companyStats = await pool.query(query);
+        const companyStats = await pool.query(query, [targetMonth, targetYear]);
         res.json(companyStats.rows);
     } catch (err) {
         console.error(err.message);
@@ -205,33 +220,43 @@ app.get('/stats/company', async (req, res) => {
 });
 
 // ==========================================
-// ROUTE: Single Team Stats
+// ROUTE: Single Team Stats (Historical Support)
 // ==========================================
 app.get('/stats/:team_id', async (req, res) => {
     try {
         const { team_id } = req.params;
+        const { month, year } = req.query;
+        const targetMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+        const targetYear = year ? parseInt(year) : new Date().getFullYear();
 
-        // 1. Get Team Details
-        const teamInfo = await pool.query("SELECT name, monthly_goal FROM teams WHERE id = $1", [team_id]);
+        // 1. Get Team Details & Goal
+        const teamInfo = await pool.query(`
+            SELECT t.name, COALESCE(mg.goal, t.monthly_goal) as monthly_goal 
+            FROM teams t 
+            LEFT JOIN monthly_goals mg ON t.id = mg.team_id AND mg.user_id IS NULL AND mg.month = $2 AND mg.year = $3
+            WHERE t.id = $1`, [team_id, targetMonth, targetYear]);
 
         // 2. Count Team Ideas
         const teamCount = await pool.query(
             `SELECT COUNT(*) FROM ideas 
              JOIN users ON ideas.submitter_id = users.id
              WHERE users.team_id = $1 
-             AND date_trunc('month', ideas.created_at) = date_trunc('month', CURRENT_DATE)`
-            , [team_id]
+             AND EXTRACT(MONTH FROM ideas.created_at) = $2
+             AND EXTRACT(YEAR FROM ideas.created_at) = $3`
+            , [team_id, targetMonth, targetYear]
         );
 
         // 3. Get User Stats
         const userStats = await pool.query(
-            `SELECT users.full_name, users.monthly_goal, COUNT(ideas.id) as actual
+            `SELECT users.id, users.full_name, COALESCE(mg.goal, users.monthly_goal) as monthly_goal, COUNT(ideas.id) as actual
              FROM users
              LEFT JOIN ideas ON users.id = ideas.submitter_id 
-             AND date_trunc('month', ideas.created_at) = date_trunc('month', CURRENT_DATE)
+             AND EXTRACT(MONTH FROM ideas.created_at) = $2
+             AND EXTRACT(YEAR FROM ideas.created_at) = $3
+             LEFT JOIN monthly_goals mg ON users.id = mg.user_id AND mg.month = $2 AND mg.year = $3
              WHERE users.team_id = $1
-             GROUP BY users.id`
-            , [team_id]
+             GROUP BY users.id, mg.goal`
+            , [team_id, targetMonth, targetYear]
         );
 
         res.json({
@@ -239,6 +264,44 @@ app.get('/stats/:team_id', async (req, res) => {
             teamActual: parseInt(teamCount.rows[0].count),
             users: userStats.rows
         });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+// ==========================================
+// ROUTE: Annual Team Stats
+// ==========================================
+app.get('/stats/:team_id/annual', async (req, res) => {
+    try {
+        const { team_id } = req.params;
+        const { year } = req.query;
+        const targetYear = year ? parseInt(year) : new Date().getFullYear();
+
+        const query = `
+            WITH months AS (
+                SELECT generate_series(1, 12) AS month
+            )
+            SELECT 
+                m.month,
+                COALESCE((
+                    SELECT COUNT(*) 
+                    FROM ideas i
+                    JOIN users u ON i.submitter_id = u.id
+                    WHERE u.team_id = $1 
+                    AND EXTRACT(MONTH FROM i.created_at) = m.month 
+                    AND EXTRACT(YEAR FROM i.created_at) = $2
+                ), 0)::int as actual,
+                COALESCE(mg.goal, t.monthly_goal) as goal
+            FROM months m
+            JOIN teams t ON t.id = $1
+            LEFT JOIN monthly_goals mg ON t.id = mg.team_id AND mg.user_id IS NULL AND mg.month = m.month AND mg.year = $2
+            ORDER BY m.month;
+        `;
+
+        const annualStats = await pool.query(query, [team_id, targetYear]);
+        res.json(annualStats.rows);
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");

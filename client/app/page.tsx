@@ -28,6 +28,12 @@ export default function Home() {
   const [isPro, setIsPro] = useState(true);
 
 
+  // --- HISTORY STATE ---
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [annualStats, setAnnualStats] = useState<any[]>([]);
+  const [showAnnual, setShowAnnual] = useState(false);
+
   // BRANDING STATE
   const [branding, setBranding] = useState({
     name: "Project Huddle",
@@ -70,27 +76,30 @@ export default function Home() {
       });
   };
 
-  const fetchIdeas = (teamId: string = "all") => {
-    let url = `${API_BASE_URL}/ideas`;
-    if (teamId !== "all") {
-      url += `?teamId=${teamId}`;
-    }
-    fetch(url).then(res => res.json()).then(setIdeas);
-  };
-
-  const fetchTeamStats = () => {
-    const teamId = currentUser?.team_id || 1;
-    fetch(`${API_BASE_URL}/stats/${teamId}`)
+  const fetchIdeas = (teamId: string = "all", month = selectedMonth, year = selectedYear) => {
+    fetch(`${API_BASE_URL}/ideas?teamId=${teamId}&month=${month}&year=${year}`)
       .then(res => res.json())
-      .then(data => {
-        setTeamStats(data);
-
-      });
-
+      .then(setIdeas);
   };
 
-  const fetchCompanyStats = () => {
-    fetch(`${API_BASE_URL}/stats/company`).then(res => res.json()).then(setCompanyStats);
+  const fetchTeamStats = (teamId: string = selectedTeamFilter, month = selectedMonth, year = selectedYear) => {
+    if (teamId === 'all') return;
+    fetch(`${API_BASE_URL}/stats/${teamId}?month=${month}&year=${year}`)
+      .then(res => res.json())
+      .then(setTeamStats);
+  };
+
+  const fetchCompanyStats = (month = selectedMonth, year = selectedYear) => {
+    fetch(`${API_BASE_URL}/stats/company?month=${month}&year=${year}`)
+      .then(res => res.json())
+      .then(setCompanyStats);
+  };
+
+  const fetchAnnualStats = (teamId: string = selectedTeamFilter, year = selectedYear) => {
+    if (teamId === 'all') return;
+    fetch(`${API_BASE_URL}/stats/${teamId}/annual?year=${year}`)
+      .then(res => res.json())
+      .then(setAnnualStats);
   };
 
   // --- EFFECTS ---
@@ -108,30 +117,39 @@ export default function Home() {
   useEffect(() => {
     if (currentUser) {
       fetchUsers();
-      fetchCompanyStats();
       const initialFilter = String(currentUser.team_id) || "1";
       setSelectedTeamFilter(initialFilter);
-      fetchIdeas(initialFilter);
-      fetchTeamStats();
     }
   }, [currentUser]);
 
   useEffect(() => {
     if (currentUser) {
-      fetchIdeas(selectedTeamFilter);
-      if (selectedTeamFilter === "all") {
-        if (companyStats.length > 0) {
-          const totalActual = companyStats.reduce((acc, curr) => acc + parseInt(curr.submissions || 0), 0);
-          const totalGoal = companyStats.reduce((acc, curr) => acc + curr.monthly_goal, 0);
-          setTeamStats({ team: { name: "All Teams Overview", monthly_goal: totalGoal }, teamActual: totalActual, users: [] });
+      fetchCompanyStats(selectedMonth, selectedYear);
+      fetchIdeas(selectedTeamFilter, selectedMonth, selectedYear);
 
-        }
+      if (selectedTeamFilter === "all") {
+        // Stats for "all" will be set in a separate effect when companyStats updates
       } else {
-        fetch(`${API_BASE_URL}/stats/${selectedTeamFilter}`).then(res => res.json()).then(data => { setTeamStats(data); });
+        fetchTeamStats(selectedTeamFilter, selectedMonth, selectedYear);
       }
 
+      if (showAnnual) {
+        fetchAnnualStats(selectedTeamFilter, selectedYear);
+      }
     }
-  }, [selectedTeamFilter, companyStats]);
+  }, [selectedTeamFilter, selectedMonth, selectedYear, showAnnual]);
+
+  useEffect(() => {
+    if (currentUser && selectedTeamFilter === "all" && companyStats.length > 0) {
+      const totalActual = companyStats.reduce((acc, curr) => acc + parseInt(curr.submissions || 0), 0);
+      const totalGoal = companyStats.reduce((acc, curr) => acc + curr.monthly_goal, 0);
+      setTeamStats({
+        team: { name: "All Teams Overview", monthly_goal: totalGoal },
+        teamActual: totalActual,
+        users: []
+      });
+    }
+  }, [companyStats, selectedTeamFilter]);
 
   // --- ACTIONS ---
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -286,6 +304,42 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* --- HISTORY & PERIOD SELECTOR BAR --- */}
+      <div className="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-6 py-2 flex flex-wrap justify-between items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-1 shadow-sm">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+              className="bg-transparent text-sm font-bold text-gray-700 dark:text-gray-200 outline-none px-2 py-1"
+            >
+              {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((m, i) => (
+                <option key={m} value={i + 1}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className="bg-transparent text-sm font-bold text-gray-700 dark:text-gray-200 outline-none px-2 py-1 border-l border-gray-200 dark:border-gray-600"
+            >
+              {[2024, 2025, 2026].map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Viewing Period</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsPro(!isPro)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border-2 shadow-sm ${isPro ? 'bg-purple-600 border-purple-400 text-white' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500'}`}
+          >
+            {isPro ? <span>💎 Pro Mode</span> : <span>⭐ Standard</span>}
+          </button>
+        </div>
+      </div>
+
       <div className="max-w-[1400px] mx-auto p-4 md:p-8">
         {activeTab === "dashboard" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -315,24 +369,23 @@ export default function Home() {
               {/* --- MONTHLY GOAL (Reverted to White/Gray Card) --- */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 transition-colors">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-800 dark:text-white text-lg">🎯 My Monthly Goal</h3>
+                  <h3 className="font-bold text-gray-800 dark:text-white text-lg">🎯 Goal for {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][selectedMonth - 1]}</h3>
                   {teamStats && currentUser && (
                     <span className="text-xs font-bold px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200">
-                      {Math.round(((teamStats.users?.find((u: any) => u.full_name === currentUser.full_name)?.actual || 0) / currentUser.monthly_goal) * 100)}% Complete
+                      {Math.round(((teamStats.users?.find((u: any) => u.id === currentUser.id)?.actual || 0) / (teamStats.users?.find((u: any) => u.id === currentUser.id)?.monthly_goal || 1)) * 100)}% Complete
                     </span>
-
                   )}
                 </div>
                 {teamStats && currentUser ? (
                   <div>
                     <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
-                      <span>Submitted: <strong className="text-gray-900 dark:text-white text-lg">{teamStats.users?.find((u: any) => u.full_name === currentUser.full_name)?.actual || 0}</strong></span>
-                      <span>Target: <strong className="text-gray-900 dark:text-white text-lg">{currentUser.monthly_goal}</strong></span>
+                      <span>Submitted: <strong className="text-gray-900 dark:text-white text-lg">{teamStats.users?.find((u: any) => u.id === currentUser.id)?.actual || 0}</strong></span>
+                      <span>Target: <strong className="text-gray-900 dark:text-white text-lg">{teamStats.users?.find((u: any) => u.id === currentUser.id)?.monthly_goal || currentUser.monthly_goal}</strong></span>
                     </div>
                     {/* Progress Bar */}
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-1000 shadow-sm"
-                        style={{ backgroundColor: branding.primary_color, width: `${Math.min(100, ((teamStats.users?.find((u: any) => u.full_name === currentUser.full_name)?.actual || 0) / currentUser.monthly_goal) * 100)}%` }}>
+                        style={{ backgroundColor: branding.primary_color, width: `${Math.min(100, ((teamStats.users?.find((u: any) => u.id === currentUser.id)?.actual || 0) / (teamStats.users?.find((u: any) => u.id === currentUser.id)?.monthly_goal || 1)) * 100)}%` }}>
                       </div>
                     </div>
                   </div>
@@ -372,68 +425,104 @@ export default function Home() {
               <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                 <div>
                   <h2 className="text-2xl font-bold">Team Performance</h2>
-                  <p className="text-gray-400 text-sm">Target vs. Actual Submissions</p>
+                  <p className="text-gray-400 text-sm">Results for {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][selectedMonth - 1]} {selectedYear}</p>
                 </div>
-                {currentUser.role === 'manager' && (
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowAnnual(!showAnnual)}
+                    className={`px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${showAnnual ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-600 text-gray-400 hover:text-white'}`}
+                  >
+                    {showAnnual ? 'Show Monthly View' : 'Show Annual Summary'}
+                  </button>
+                  {currentUser.role === 'manager' && (
                     <select
                       value={selectedTeamFilter}
                       onChange={(e) => setSelectedTeamFilter(e.target.value)}
-                      className="bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded text-xs font-bold outline-none flex-1 sm:flex-none"
+                      className="bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded text-xs font-bold outline-none"
                     >
                       <option value="all">👁️ View All Teams</option>
                       {companyStats.map(team => (
                         <option key={team.id} value={team.id}>{team.name}</option>
                       ))}
                     </select>
-                  </div>
-                )}
-              </div>
-              {teamStats ? (
-                <div className="flex flex-col md:flex-row gap-8 items-center mt-6">
-                  <div className="flex-1 w-full">
-                    <div className="flex justify-between text-sm font-bold mb-2">
-                      <span>{teamStats.team?.name || "Loading..."}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-gray-400">Actual: <strong className="text-white text-lg">{teamStats.teamActual}</strong> / {teamStats.team?.monthly_goal || 0}</span>
-                        <span className="bg-blue-900/50 text-blue-300 px-2 py-0.5 rounded text-xs">
-                          {Math.round((teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-6 relative overflow-hidden">
-                      <div
-                        className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`}
-                        style={{ width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  {selectedTeamFilter !== 'all' && (
-                    <div className="w-full md:w-1/3 border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 pl-0 md:pl-8">
-                      <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3>
-                      <div className="space-y-3">
-                        {teamStats.users?.map((u: any, idx: number) => (
-                          <div key={idx} className="flex flex-col">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>{u.full_name}</span>
-                              <span className={u.actual >= u.monthly_goal ? "text-blue-400 font-bold" : "text-gray-400"}>
-                                {u.actual} / {u.monthly_goal}
-                                <span className="ml-2 text-[10px] opacity-75">({Math.round((u.actual / (u.monthly_goal || 1)) * 100)}%)</span>
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-700 ${u.actual >= u.monthly_goal ? 'bg-blue-400' : 'bg-blue-600'}`}
-                                style={{ width: `${Math.min(100, (u.actual / (u.monthly_goal || 1)) * 100)}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   )}
                 </div>
-              ) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}
+              </div>
+
+              {showAnnual ? (
+                <div className="mt-8">
+                  <div className="flex gap-2 items-end justify-between h-48 px-4">
+                    {annualStats.map((m: any, i: number) => (
+                      <div key={i} className="flex-1 flex flex-col items-center group relative">
+                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-2 py-1 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl">
+                          {m.actual} / {m.goal} Ideas
+                        </div>
+                        <div className="w-full bg-gray-800/50 rounded-t-lg relative overflow-hidden h-32">
+                          <div
+                            className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-blue-600 opacity-75'}`}
+                            style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
+                          />
+                          <div
+                            className="absolute bottom-0 w-full border-t border-dashed border-white/20 z-10"
+                            style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-bold text-gray-500 mt-2 uppercase">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600"></div> Submissions</div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 border-t border-dashed border-white/40"></div> Goal Target</div>
+                  </div>
+                </div>
+              ) : (
+                teamStats ? (
+                  <div className="flex flex-col md:flex-row gap-8 items-center mt-6">
+                    <div className="flex-1 w-full">
+                      <div className="flex justify-between text-sm font-bold mb-2">
+                        <span>{teamStats.team?.name || "Loading..."}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-400">Actual: <strong className="text-white text-lg">{teamStats.teamActual}</strong> / {teamStats.team?.monthly_goal || 0}</span>
+                          <span className="bg-blue-900/50 text-blue-300 px-2 py-0.5 rounded text-xs">
+                            {Math.round((teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-6 relative overflow-hidden">
+                        <div
+                          className={`h-6 rounded-full transition-all duration-1000 ${teamStats.teamActual >= teamStats.team?.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`}
+                          style={{ width: `${Math.min(100, (teamStats.teamActual / (teamStats.team?.monthly_goal || 1)) * 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    {selectedTeamFilter !== 'all' && (
+                      <div className="w-full md:w-1/3 border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 pl-0 md:pl-8">
+                        <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Top Contributors</h3>
+                        <div className="space-y-3">
+                          {teamStats.users?.map((u: any, idx: number) => (
+                            <div key={idx} className="flex flex-col">
+                              <div className="flex justify-between text-sm mb-1">
+                                <span>{u.full_name}</span>
+                                <span className={u.actual >= u.monthly_goal ? "text-blue-400 font-bold" : "text-gray-400"}>
+                                  {u.actual} / {u.monthly_goal}
+                                  <span className="ml-2 text-[10px] opacity-75">({Math.round((u.actual / (u.monthly_goal || 1)) * 100)}%)</span>
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-700 ${u.actual >= u.monthly_goal ? 'bg-blue-400' : 'bg-blue-600'}`}
+                                  style={{ width: `${Math.min(100, (u.actual / (u.monthly_goal || 1)) * 100)}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>
+              )}
             </div>
             <MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} />
             <hr className="my-12 border-gray-200 dark:border-gray-700" />
