@@ -465,10 +465,20 @@ export default function Home() {
                             className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-blue-600 opacity-75'}`}
                             style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
                           />
+                          {/* Visible Target Line */}
                           <div
-                            className="absolute bottom-0 w-full border-t border-dashed border-white/20 z-10"
+                            className="absolute w-full border-t-2 border-dashed border-amber-400/70 z-10"
                             style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
                           />
+                          {/* Minimal Target Label on bar */}
+                          {m.goal > 0 && (
+                            <div
+                              className="absolute right-0 translate-x-1/2 bg-amber-400 text-[8px] font-black px-1 rounded-sm text-black z-20 pointer-events-none"
+                              style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(50%)' }}
+                            >
+                              {m.goal}
+                            </div>
+                          )}
                         </div>
                         <span className="text-[10px] font-bold text-gray-500 mt-2 uppercase">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
                       </div>
@@ -476,7 +486,7 @@ export default function Home() {
                   </div>
                   <div className="mt-6 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500">
                     <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600"></div> Submissions</div>
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 border-t border-dashed border-white/40"></div> Goal Target</div>
+                    <div className="flex items-center gap-2"><div className="w-4 h-1 border-t-2 border-dashed border-amber-400/70"></div> Goal Target</div>
                   </div>
                 </div>
               ) : (
@@ -619,10 +629,20 @@ export default function Home() {
                           className={`absolute bottom-0 w-full rounded-t-xl transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.6)]' : 'bg-blue-600 opacity-80'}`}
                           style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
                         />
+                        {/* High Visibility Target Line */}
                         <div
-                          className="absolute bottom-0 w-full border-t-2 border-dashed border-white/30 z-10"
+                          className="absolute w-full border-t-2 border-dashed border-amber-400/70 z-10"
                           style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
                         />
+                        {/* Target Value Label */}
+                        {m.goal > 0 && (
+                          <div
+                            className="absolute right-0 translate-x-1/2 bg-amber-400 text-[8px] font-black px-1.5 py-0.5 rounded-sm text-black z-20 shadow-sm pointer-events-none"
+                            style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(50%)' }}
+                          >
+                            T: {m.goal}
+                          </div>
+                        )}
                       </div>
                       <span className="text-[10px] font-black text-gray-400 mt-3 uppercase tracking-tighter">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
                     </div>
@@ -630,7 +650,7 @@ export default function Home() {
                 </div>
                 <div className="mt-8 flex justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-gray-400">
                   <div className="flex items-center gap-3"><div className="w-4 h-4 bg-blue-600 rounded-sm"></div> Total Submissions</div>
-                  <div className="flex items-center gap-3"><div className="w-4 h-1 border-t-2 border-dashed border-white/50"></div> Combined Target</div>
+                  <div className="flex items-center gap-3"><div className="w-6 h-1 border-t-2 border-dashed border-amber-400/70"></div> Goal Target</div>
                 </div>
               </div>
             ) : (
