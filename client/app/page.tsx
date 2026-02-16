@@ -613,7 +613,6 @@ export default function Home() {
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                   {selectedTeamFilter === 'all' ? 'Company Leaderboard 🏆' : `${companyStats.find(t => t.id.toString() === selectedTeamFilter)?.name} Performance 📈`}
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 font-medium">Performance for {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][selectedMonth - 1]} {selectedYear}</p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-4">
