@@ -435,12 +435,16 @@ export default function Home() {
                     onClick={() => setShowAnnual(!showAnnual)}
                     className={`px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${showAnnual ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-600 text-gray-400 hover:text-white'}`}
                   >
-                    {showAnnual ? 'Show Monthly View' : 'Show Annual Summary'}
+                    {showAnnual ? 'Hide Annual Summary' : 'Show Annual Summary'}
                   </button>
                   {currentUser.role === 'manager' && (
                     <select
                       value={selectedTeamFilter}
-                      onChange={(e) => setSelectedTeamFilter(e.target.value)}
+                      onChange={(e) => {
+                        const newFilter = e.target.value;
+                        setSelectedTeamFilter(newFilter);
+                        if (showAnnual) fetchAnnualStats(newFilter, selectedYear);
+                      }}
                       className="bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded text-xs font-bold outline-none"
                     >
                       <option value="all">👁️ View All Teams</option>
@@ -452,45 +456,9 @@ export default function Home() {
                 </div>
               </div>
 
-              {showAnnual ? (
-                <div className="mt-8">
-                  <div className="flex gap-2 items-end justify-between h-48 px-4">
-                    {annualStats.map((m: any, i: number) => (
-                      <div key={i} className="flex-1 flex flex-col items-center group relative">
-                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-2 py-1 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl">
-                          {m.actual} / {m.goal} Ideas
-                        </div>
-                        <div className="w-full bg-gray-800/40 rounded-t-lg relative h-32">
-                          <div
-                            className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-blue-600 opacity-75'}`}
-                            style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
-                          />
-                          {/* Visible Target Line - Solid for better visibility */}
-                          <div
-                            className="absolute w-full border-t-2 border-emerald-400/90 z-20"
-                            style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
-                          />
-                          {/* Left-aligned Label to prevent clipping */}
-                          {m.goal > 0 && (
-                            <div
-                              className="absolute left-0 bg-emerald-400 text-[8px] font-black px-1 rounded-sm text-black z-30 pointer-events-none"
-                              style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(-50%)' }}
-                            >
-                              GOAL: {m.goal}
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-bold text-gray-500 mt-2 uppercase">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-6 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded-sm"></div> Submissions</div>
-                    <div className="flex items-center gap-2"><div className="w-4 h-0.5 bg-emerald-400"></div> Target Threshold</div>
-                  </div>
-                </div>
-              ) : (
-                teamStats ? (
+              <div className="space-y-8">
+                {/* Always show monthly performance */}
+                {teamStats ? (
                   <div className="flex flex-col md:flex-row gap-8 items-center mt-6">
                     <div className="flex-1 w-full">
                       <div className="flex justify-between text-sm font-bold mb-2">
@@ -534,8 +502,52 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                ) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>
-              )}
+                ) : <p className="text-gray-500 italic">Select a team to view detailed stats...</p>}
+
+                {/* Conditional Annual Summary below */}
+                {showAnnual && (
+                  <div className="pt-8 border-t border-gray-600/50 animae-fade-in">
+                    <div className="mb-6 flex justify-between items-end">
+                      <h3 className="text-lg font-bold">Annual Summary</h3>
+                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Yearly Trend - {selectedYear}</div>
+                    </div>
+                    <div className="flex gap-2 items-end justify-between h-48 px-4">
+                      {annualStats.map((m: any, i: number) => (
+                        <div key={i} className="flex-1 flex flex-col items-center group relative">
+                          <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-2 py-1 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl">
+                            {m.actual} / {m.goal} Ideas
+                          </div>
+                          <div className="w-full bg-gray-800/40 rounded-t-lg relative h-32">
+                            <div
+                              className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ${m.actual >= m.goal ? 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-blue-600 opacity-75'}`}
+                              style={{ height: `${Math.min(100, (m.actual / (Math.max(m.goal, m.actual, 1))) * 100)}%` }}
+                            />
+                            {/* Visible Target Line - Solid for better visibility */}
+                            <div
+                              className="absolute w-full border-t-2 border-emerald-400/90 z-20"
+                              style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%` }}
+                            />
+                            {/* Left-aligned Label to prevent clipping */}
+                            {m.goal > 0 && (
+                              <div
+                                className="absolute left-0 bg-emerald-400 text-[8px] font-black px-1 rounded-sm text-black z-30 pointer-events-none"
+                                style={{ bottom: `${(m.goal / (Math.max(m.goal, m.actual, 1))) * 100}%`, transform: 'translateY(-50%)' }}
+                              >
+                                GOAL: {m.goal}
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-500 mt-2 uppercase">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-6 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded-sm"></div> Submissions</div>
+                      <div className="flex items-center gap-2"><div className="w-4 h-0.5 bg-emerald-400"></div> Target Threshold</div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <MatrixBoard ideas={ideas} users={users} onUpdate={updateIdea} onPromote={promoteIdea} isManager={currentUser.role === 'manager'} onIdeaClick={setSelectedIdea} />
             <hr className="my-12 border-gray-200 dark:border-gray-700" />
@@ -596,27 +608,52 @@ export default function Home() {
 
         {activeTab === "company" && (
           <div>
-            <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
               <div className="text-center md:text-left">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Company Leaderboard 🏆</h2>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                  {selectedTeamFilter === 'all' ? 'Company Leaderboard 🏆' : `${companyStats.find(t => t.id.toString() === selectedTeamFilter)?.name} Performance 📈`}
+                </h2>
                 <p className="text-gray-500 dark:text-gray-400 font-medium">Performance for {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][selectedMonth - 1]} {selectedYear}</p>
               </div>
-              <button
-                onClick={() => {
-                  setShowAnnual(!showAnnual);
-                  if (!showAnnual) fetchAnnualStats('all', selectedYear);
-                }}
-                className={`px-6 py-3 rounded-lg text-xs font-black uppercase tracking-widest border transition-all shadow-sm ${showAnnual ? 'bg-blue-600 border-blue-500 text-white shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`}
-              >
-                {showAnnual ? '📊 Show Team Cards' : '📈 Show Annual Trends'}
-              </button>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                {currentUser.role === 'manager' && (
+                  <select
+                    value={selectedTeamFilter}
+                    onChange={(e) => {
+                      const newFilter = e.target.value;
+                      setSelectedTeamFilter(newFilter);
+                      if (showAnnual) fetchAnnualStats(newFilter, selectedYear);
+                    }}
+                    className="w-full sm:w-auto bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 px-4 py-2.5 rounded-lg text-sm font-bold shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  >
+                    <option value="all">👁️ View All Teams</option>
+                    {companyStats.map(team => (
+                      <option key={team.id} value={team.id}>{team.name}</option>
+                    ))}
+                  </select>
+                )}
+
+                <button
+                  onClick={() => {
+                    const newState = !showAnnual;
+                    setShowAnnual(newState);
+                    if (newState) fetchAnnualStats(selectedTeamFilter, selectedYear);
+                  }}
+                  className={`w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-black uppercase tracking-widest border transition-all shadow-sm ${showAnnual ? 'bg-blue-600 border-blue-500 text-white shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`}
+                >
+                  {showAnnual ? '📊 Show Team Cards' : '📈 Show Annual Trends'}
+                </button>
+              </div>
             </div>
 
             {showAnnual ? (
-              <div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-8 rounded-xl shadow-lg mb-12">
+              <div className="bg-slate-700 dark:bg-slate-800 text-white border-2 border-slate-600 dark:border-slate-700 p-8 rounded-xl shadow-lg mb-12 animate-fade-in">
                 <div className="mb-8">
-                  <h3 className="text-xl font-bold">Company-wide Annual trends</h3>
-                  <p className="text-gray-400 text-sm">Aggregated results across all departments for {selectedYear}</p>
+                  <h3 className="text-xl font-bold">
+                    {selectedTeamFilter === 'all' ? 'Company-wide Annual Trends' : `${companyStats.find(t => t.id.toString() === selectedTeamFilter)?.name} Annual Trends`}
+                  </h3>
+                  <p className="text-gray-400 text-sm">Aggregated results for {selectedYear}</p>
                 </div>
                 <div className="flex gap-2 items-end justify-between h-56 px-4">
                   {annualStats.map((m: any, i: number) => (
@@ -654,48 +691,50 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {companyStats.map((team, index) => (
-                  <div key={team.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
-                      <h3 className="font-bold text-lg text-gray-800 dark:text-white">
-                        {index === 0 && '🥇 '} {index === 1 && '🥈 '} {index === 2 && '🥉 '}{team.name}
-                      </h3>
-                      {parseInt(team.submissions) >= team.monthly_goal && (
-                        <span className="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-1 rounded tracking-tighter shadow-sm">
-                          On Target
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-6 space-y-6">
-                      <div>
-                        <div className="flex justify-between items-end text-sm mb-2">
-                          <span className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-wider">Submissions</span>
-                          <div className="text-right">
-                            <span className="font-bold text-gray-900 dark:text-white text-lg">{team.submissions}</span>
-                            <span className="text-gray-400 text-xs ml-1">/ {team.monthly_goal}</span>
-                            <div className="text-[10px] font-black text-blue-600 dark:text-blue-400">
-                              {Math.round((team.submissions / team.monthly_goal) * 100)}% OF GOAL
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+                {companyStats
+                  .filter(team => selectedTeamFilter === 'all' || team.id.toString() === selectedTeamFilter)
+                  .map((team, index) => (
+                    <div key={team.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow">
+                      <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
+                        <h3 className="font-bold text-lg text-gray-800 dark:text-white">
+                          {index === 0 && '🥇 '} {index === 1 && '🥈 '} {index === 2 && '🥉 '}{team.name}
+                        </h3>
+                        {parseInt(team.submissions) >= team.monthly_goal && (
+                          <span className="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-1 rounded tracking-tighter shadow-sm">
+                            On Target
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-6 space-y-6">
+                        <div>
+                          <div className="flex justify-between items-end text-sm mb-2">
+                            <span className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-wider">Submissions</span>
+                            <div className="text-right">
+                              <span className="font-bold text-gray-900 dark:text-white text-lg">{team.submissions}</span>
+                              <span className="text-gray-400 text-xs ml-1">/ {team.monthly_goal}</span>
+                              <div className="text-[10px] font-black text-blue-600 dark:text-blue-400">
+                                {Math.round((team.submissions / team.monthly_goal) * 100)}% OF GOAL
+                              </div>
                             </div>
                           </div>
+                          <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
+                            <div
+                              className={`h-3 rounded-full transition-all duration-1000 ${parseInt(team.submissions) >= team.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`}
+                              style={{ width: `${Math.min(100, (team.submissions / team.monthly_goal) * 100)}%` }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
-                          <div
-                            className={`h-3 rounded-full transition-all duration-1000 ${parseInt(team.submissions) >= team.monthly_goal ? 'bg-blue-500' : 'bg-blue-600'}`}
-                            style={{ width: `${Math.min(100, (team.submissions / team.monthly_goal) * 100)}%` }}
-                          ></div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl flex justify-between items-center border border-gray-100 dark:border-gray-700">
+                          <div>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest mb-1">Completed</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{team.completions}</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-sm text-2xl border border-gray-100 dark:border-gray-700">✅</div>
                         </div>
-                      </div>
-                      <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl flex justify-between items-center border border-gray-100 dark:border-gray-700">
-                        <div>
-                          <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest mb-1">Completed</p>
-                          <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{team.completions}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-sm text-2xl border border-gray-100 dark:border-gray-700">✅</div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
